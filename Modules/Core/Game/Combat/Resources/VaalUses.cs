@@ -56,7 +56,9 @@ static partial class Game
     {
         var stats = CharacterPlayerStats(conn);
         var rage = conn.Rage.Read(VaalResourceTime(conn), RageStats.Inputs(n => RageStat(stats, n)));
-        if (conn.PlayerMana < plan.Mana || rage.Current < plan.Rage) return false;
+        // Blood Magic takes the Vaal skill's cost from life, and a cost that would leave none cannot be paid.
+        bool bloodMagic = HasBloodMagic(conn);
+        if ((bloodMagic ? conn.PlayerLife <= plan.Mana : conn.PlayerMana < plan.Mana) || rage.Current < plan.Rage) return false;
         if (plan.Souls == 0) return true;
         RefreshVaalSouls(conn);
         var definition = SkillsFor(conn).VaalBudget(plan.Effect, SupportedSkill(conn, plan.Skill).Level)!.Value;
@@ -88,7 +90,12 @@ static partial class Game
             if (!conn.VaalSouls.TryConsume(definition.ActiveSkillsRow, plan.Souls))
                 throw new InvalidOperationException("Vaal soul reservation changed inside admission");
         }
-        conn.PlayerMana -= plan.Mana;
+        {
+            uint life = conn.PlayerLife, mana = conn.PlayerMana;
+            PaySkillCost(HasBloodMagic(conn), plan.Mana, ref life, ref mana);
+            conn.PlayerLife = life;
+            conn.PlayerMana = mana;
+        }
         if (attackDeadline is double next) conn.NextAttackAt = next;
         conn.VaalPreventionUntil = Math.Max(conn.VaalPreventionUntil, now + plan.PreventionSeconds);
         conn.VaalUse = plan with { Action = conn.ActionCount, Epoch = conn.ProjectileEpoch,
@@ -151,7 +158,10 @@ static partial class Game
             if (!Current()) return;
             await SendVaalSouls(remote, stream, ciphers, conn);
             if (!Current()) return;
-            await SendPlayerMana(remote, stream, ciphers, conn, "Vaal use paid");
+            if (HasBloodMagic(conn) && paid.Mana > 0)
+                await Send(remote, stream, ciphers, GameServer.Core.Protocol.Instance.InstanceProtocol.LifeUpdate(PlayerId, conn.PlayerLife),
+                    $"Vaal use paid {paid.Mana} life (Blood Magic), life {conn.PlayerLife}");
+            else await SendPlayerMana(remote, stream, ciphers, conn, "Vaal use paid");
         }
         finally { Program.ProjectileOutputGuard.Value = previous; }
     }

@@ -545,11 +545,11 @@ static partial class Game
         if (gem.Name is not null && !vaalCast)
         {
             uint cost;
-            bool paid;
+            bool paid, bloodMagicCost;
             lock (conn.Monsters)
             {
                 if (!Current()) return false;
-                paid = PayMana(conn, skillId, out cost);
+                paid = PayMana(conn, skillId, out cost, out bloodMagicCost);
                 if (paid) criticalRoll = CaptureSkillCriticalRoll(conn, skillId);
                 if (paid && Supports.Of(gem.Effect)?.Types.Contains(47) == true)
                 {
@@ -563,12 +563,22 @@ static partial class Game
             }
             if (!paid)
             {
-                Console.WriteLine($"[gateway] {remote} skill 0x{skillId:x4} {gem.Name}: not enough mana ({conn.PlayerMana} < {cost})");
+                Console.WriteLine($"[gateway] {remote} skill 0x{skillId:x4} {gem.Name}: not enough {(bloodMagicCost ? "life" : "mana")}"
+                    + $" ({(bloodMagicCost ? conn.PlayerLife : conn.PlayerMana)} < {cost})");
                 return false;
             }
             if (cost > 0)
             {
-                if (UsesProjectileRuntime(gem.Effect)) ProjectilesFor(remote, stream, ciphers, conn)
+                // Blood Magic took the cost from life: send that pool instead of mana.
+                if (bloodMagicCost)
+                {
+                    if (UsesProjectileRuntime(gem.Effect)) ProjectilesFor(remote, stream, ciphers, conn)
+                        .Enqueue(() => Send(remote, stream, ciphers, InstanceProtocol.LifeUpdate(PlayerId, conn.PlayerLife),
+                            $"projectile life cost paid: {gem.Name}"));
+                    else await Send(remote, stream, ciphers, InstanceProtocol.LifeUpdate(PlayerId, conn.PlayerLife),
+                        $"0x01b1 player life {conn.PlayerLife} (-{cost} for {gem.Name}, Blood Magic)");
+                }
+                else if (UsesProjectileRuntime(gem.Effect)) ProjectilesFor(remote, stream, ciphers, conn)
                     .Enqueue(() => SendPlayerMana(remote, stream, ciphers, conn, $"projectile mana paid: {gem.Name}"));
                 else await SendPlayerMana(remote, stream, ciphers, conn,
                     $"0x01b1 player mana {conn.PlayerMana} (-{cost} for {gem.Name}) (t={conn.Clock.Elapsed.TotalSeconds:0.000})");
@@ -816,6 +826,7 @@ static partial class Game
                 if (!Running()) return;
                 double now = conn.Clock.Elapsed.TotalSeconds;
                 uint cost;
+                bool bloodMagicCost = false;
                 using (conn.Performance.Lock(conn.Monsters, "channel"))
                 {
                     if (!Running() || conn.Paused || now < conn.NextChannelHitAt) continue;
@@ -830,10 +841,13 @@ static partial class Game
                     conn.Performance.RecordMilliseconds(LatencyPhase.ChannelLate, (now - conn.NextChannelHitAt) * 1000);
                     conn.NextChannelHitAt = Math.Max(conn.NextChannelHitAt, now - 0.05) + SupportedChannelSeconds(conn, skillId);
                     // Payment and admission share the channel's generation check.
-                    if (!PayMana(conn, skillId, out cost)) { conn.ChannelSkill = 0; conn.ChannelGeneration++; }
+                    if (!PayMana(conn, skillId, out cost, out bloodMagicCost)) { conn.ChannelSkill = 0; conn.ChannelGeneration++; }
                 }
                 if (!Running()) { await SendPlayerMana(remote, stream, ciphers, conn, "channel stopped"); return; }
-                if (cost > 0) await SendPlayerMana(remote, stream, ciphers, conn, $"channel cost {cost}");
+                if (cost > 0 && bloodMagicCost)
+                    await Send(remote, stream, ciphers, InstanceProtocol.LifeUpdate(PlayerId, conn.PlayerLife),
+                        $"channel cost {cost} life (Blood Magic), life {conn.PlayerLife}");
+                else if (cost > 0) await SendPlayerMana(remote, stream, ciphers, conn, $"channel cost {cost}");
                 if (!Running()) return;
                 var at = conn.Walk.Position(conn.Clock.Elapsed.TotalSeconds);
                 await AreaSkillHit(remote, stream, ciphers, conn, skillId, gem, at, at,

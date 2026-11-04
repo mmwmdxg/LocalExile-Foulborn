@@ -47,6 +47,11 @@ Part of [Status](../Status.md); what to build next in this area is in
   have automated coverage; further native composition checks remain in [26-rage.md](../docs/protocol/26-rage.md).
   Capped attempted gains and frozen destination-loading time use explicit LocalExile policy v1.
 
+- Skill costs (Blood Magic): `keystone_blood_magic` makes every gem skill pay its cost from life instead of mana, on
+  the ordinary cast path, on channelled stages and for Vaal uses, and a cost that would take the last point of life is
+  refused.
+  Mana costs, Blood Charges and free skills are unchanged; automated coverage only, the real-client check is pending.
+
 - Mana per final Strength (#287): `X_mana_per_4_strength` joins the ordinary flat mana bucket before increases.
   Thirteen native controls verify complete four-Strength groups, signed inputs, source removal and relog.
   A fresh Witch's 56 mana becomes 80 at 14/15 Strength, 88 at 16 Strength and 110 with 25% increased mana.

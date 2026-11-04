@@ -249,20 +249,42 @@ static partial class Game
     internal static uint ManaCost(StatCatalog stats, SkillCatalog skills, int effect, int level, int quality) =>
         stats.Key("mana_cost") is uint k ? (uint)skills.EffectStats(effect, level, quality).Where(kv => kv.Item1 == k).Select(kv => kv.Item2).FirstOrDefault() : 0;
 
-    // A gem skill's mana cost at the gem's level (its mana_cost stat), paid when the cast starts. False when the player lacks
-    // the mana.
-    internal static bool PayMana(ClientState conn, ushort skillId, out uint cost)
+    // The Blood Magic keystone makes every skill cost life rather than mana.
+    internal static bool HasBloodMagic(ClientState conn) =>
+        Stats.Key("keystone_blood_magic") is uint key && CharacterPlayerStats(conn).GetValueOrDefault(key) != 0;
+
+    // Pays a skill's cost from the pool it comes out of: life with Blood Magic, mana otherwise. A life cost that would take
+    // the last point is refused, as the game never lets a cost kill.
+    internal static bool PaySkillCost(bool bloodMagic, uint cost, ref uint life, ref uint mana)
+    {
+        if (!bloodMagic)
+        {
+            if (mana < cost) return false;
+            mana -= cost;
+            return true;
+        }
+        if (life <= cost) return false;
+        life -= cost;
+        return true;
+    }
+
+    // A gem skill's cost at the gem's level (its mana_cost stat), paid when the cast starts. False when the player lacks the
+    // resource; bloodMagic reports which pool paid, so the caller sends the change it made.
+    internal static bool PayMana(ClientState conn, ushort skillId, out uint cost, out bool bloodMagic)
     {
         var own = SupportedSkill(conn, skillId).Stats;
         int Own(string name) => Stats.Key(name) is uint key ? own.GetValueOrDefault(key) : 0;
         cost = (uint)Math.Max(0, Own("mana_cost"));
+        bloodMagic = HasBloodMagic(conn);
         lock (conn.Monsters)
         {
             // Reap's Blood Charges: more cost per charge held (BloodCharges), rounded as the client rounds costs.
             if (cost > 0 && BloodCharges.Uses(Own))
                 cost = (uint)Math.Round(cost * BloodCharges.More(Own(BloodCharges.CostPerCharge), conn.BloodCharges));
-            if (conn.PlayerMana < cost) return false;
-            conn.PlayerMana -= cost;
+            uint life = conn.PlayerLife, mana = conn.PlayerMana;
+            if (!PaySkillCost(bloodMagic, cost, ref life, ref mana)) return false;
+            conn.PlayerLife = life;
+            conn.PlayerMana = mana;
             return true;
         }
     }
