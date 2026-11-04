@@ -50,7 +50,9 @@ Part of [Status](../Status.md); what to build next in this area is in
   played on the engine before the game moved into modules): flags per character in the save, one declarative table per
   quest, one file per act (`Modules/Core/World/QuestObjects/Acts/Act1.cs` …, registered by the QuestObjects module and
   run only for the leagues that list it; [campaign quests](../docs/game/campaign-quests.md) "Adding a quest"),
-  `/quest_flag`.
+  `/quest_flag`. `/quest_complete_all` completes every act's quests from their `QuestStates` completion flags and unlocks
+  every waypoint, for a campaign skipped with commands; `/quest_heard_all` marks every NPCTalk row's QuestFlag3 heard.
+  The client's NPC quest markers follow those flags: live 2026-11-05, after `/quest_heard_all` every town's markers cleared.
   Kills, sightings, room objects come near, exits, cleared areas, quest chests, room NPCs, NPCs that turn into
   monsters, second forms and mirrored blockers are rules; quest items (their `.it` Quest flags: held, picked up,
   handed in, removed, used), dialogue flags and scripts, session flags and the rewards come from the client's data.
