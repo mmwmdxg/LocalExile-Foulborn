@@ -824,7 +824,7 @@ static class CommandsFeature
                 ? $"Map portals will be created at {conn.PortalRotationDegrees:0.#}°."
                 : $"{rebuilt} map portal(s) rebuilt at {conn.PortalRotationDegrees:0.#}°.");
         })
-        .Add("item_mod", "/item_mod [implicit|explicit|enchant|scourge|hidden] <Mods row, Id or part of it> [values…] | /item_mod set [section] <mod> [values…] | /item_mod clear [section] (the held item; missing values are rolled)", async args =>
+        .Add("item_mod", "/item_mod [implicit|explicit|enchant|scourge|hidden] <Mods row, Id or part of it> [values… | max] | /item_mod set [section] <mod> [values… | max] | /item_mod clear [section] (the held item; missing values are rolled, max takes the top of each range)", async args =>
         {
             if (args.Length == 0) throw new ArgumentException("which mod?");
             ModSection? section = null;
@@ -836,7 +836,8 @@ static class CommandsFeature
                 if (args.Length > 1 && ParseSection(args[0]) is { } parsed) { setSection = parsed; args = args[1..]; }
                 if (ItemsFor(conn).Mods.Find(args[0]) is not { } setMod) { await conn.Commands!.Reply($"No mod \"{args[0]}\" in Mods.dat"); return; }
                 if (ItemsOf(conn).Items(PlayerInventories.Cursor) is not [var held, ..]) { await conn.Commands!.Reply("Hold an item first"); return; }
-                var setValues = args[1..].Select(int.Parse).ToList();
+                bool setTop = args.Length > 1 && args[1..].Any(a => a.Equals("max", StringComparison.OrdinalIgnoreCase));
+                var setValues = setTop ? setMod.MaxValues().ToList() : args[1..].Select(int.Parse).ToList();
                 var replacement = setMod.With(setSection ?? setMod.DefaultSection, setValues, Random.Shared);
                 int existing = held.Item.Mods.Select((m, index) => (m, index))
                     .Where(p => p.m.Hash == replacement.Hash && (setSection is null || p.m.Section == setSection))
@@ -862,9 +863,33 @@ static class CommandsFeature
                 return;
             }
             if (ItemsFor(conn).Mods.Find(args[0]) is not { } mod) { await conn.Commands!.Reply($"No mod \"{args[0]}\" in Mods.dat"); return; }
-            var values = args[1..].Select(int.Parse).ToList();
+            // "max": every stat takes the top of its own roll range, so the value can never leave the legal band.
+            bool top = args.Length > 1 && args[1..].Any(a => a.Equals("max", StringComparison.OrdinalIgnoreCase));
+            var values = top ? mod.MaxValues().ToList() : args[1..].Select(int.Parse).ToList();
             var added = mod.With(section ?? mod.DefaultSection, values, Random.Shared);
             await ChangeHeldItem(remote, stream, ciphers, conn, i => i with { Mods = [.. i.Mods, added] }, $"+ {ItemsFor(conn).Mods.Describe(added)}");
+        })
+
+        .Add("item_maxroll", "/item_maxroll (the held item: every mod takes its highest legal roll, e.g. after /item foulborn \"Rathpith Globe\")", async args =>
+        {
+            if (ItemsOf(conn).Items(PlayerInventories.Cursor) is not [var held, ..]) { await conn.Commands!.Reply("Hold an item first"); return; }
+            var catalog = ItemsFor(conn).Mods;
+            int changed = 0;
+            await ChangeHeldItem(remote, stream, ciphers, conn, i =>
+            {
+                var mods = new List<ItemMod>(i.Mods.Count);
+                foreach (var m in i.Mods)
+                {
+                    if (catalog.ByHash(m.Hash) is { } row && row.MaxValues() is { Count: > 0 } top)
+                    {
+                        mods.Add(m with { Values = top });
+                        changed++;
+                        continue;
+                    }
+                    mods.Add(m);
+                }
+                return i with { Mods = mods };
+            }, $"max rolls on {changed} mod(s)");
         })
         .Add("roll", "/roll <magic|rare> [item level] (new affixes and name for the held item)", async args =>
         {
