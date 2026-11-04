@@ -635,9 +635,17 @@ static partial class Game
                     if (convertLifeRegen) conn.EnergyShield.Gain(antiquarianLife);
                     double enduringCryLife = conn.EnduringCryRecovery.Take(now);
                     if (convertLifeRegen) conn.EnergyShield.Gain(enduringCryLife);
+                    // Eternal Youth: the recharge the keystone moved off energy shield restores life instead, after the
+                    // same delay since the last damage, at the recharge's own rate (a share of maximum energy shield).
+                    double lifeRecharge = 0;
+                    if (EnergyShield.LifeRechargePerMinute(conn.Pools.EnergyShield, RecoveryStat) is var rechargePerMinute
+                        && rechargePerMinute > 0
+                        && now >= conn.EnergyShield.InterruptedAt + EnergyShield.Delay(RecoveryStat))
+                        lifeRecharge = rechargePerMinute / 60.0;
                     conn.PlayerLife = lifeAfter = RecoveryPool.Advance(lifeBefore, conn.PlayerMaxLife,
                         life + (zealotsOath ? 0 : lifeRate * seconds) + (zealotsOath ? 0 : fortificationLife) + leeched.Life
-                            + (zealotsOath ? 0 : antiquarianLife) + (zealotsOath ? 0 : enduringCryLife) - lifeBurn,
+                            + (zealotsOath ? 0 : antiquarianLife) + (zealotsOath ? 0 : enduringCryLife)
+                            + lifeRecharge * seconds - lifeBurn,
                         ref lifeCarry, minimum: 1);
                     AdvancePlayerAilmentsLocked(conn, recoveryFrom, now, recoveryStats);
                     lifeAfter = conn.PlayerLife;

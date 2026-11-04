@@ -1383,6 +1383,9 @@ This is a research baseline, not new live skill acceptance or complete native/se
   Live checks covered absorption, regeneration, interrupted recharge and chaos bypass.
   Zealot's Oath is implemented; other special ES keystones, recoup and conditional substitutions remain
   unimplemented; ordinary ES leech uses the shared recovery writer (§5b).
+  Eternal Youth (`keystone_eternal_youth`) is implemented: the shield stops recharging and life recharges instead at the
+  shield's rate (a fifth of maximum energy shield per minute, with its rate modifiers) after the same delay, since the
+  last damage; automated coverage only, the real-client check is pending.
   See [ES scope](../docs/protocol/20-damage.md#player-energy-shield-2026-10-25).
   Maximum-mana added lightning has original-head native checks and resolved automated checks.
   The player's hits chill, freeze and shock monsters: threshold maximum life, strongest effect with its own duration,

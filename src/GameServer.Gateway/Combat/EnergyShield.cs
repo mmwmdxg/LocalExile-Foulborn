@@ -37,14 +37,31 @@ sealed class EnergyShield
         Current = RecoveryPool.Advance(Current, Maximum, amount, ref fraction);
         if (Current == Maximum) Recharging = false;
     }
+
+    /// <summary>Eternal Youth: energy shield recharge applies to life instead, at the recharge's own rate (a share of maximum
+    /// energy shield per minute) and after the same delay. Zero without the keystone.</summary>
+    public static double LifeRechargePerMinute(uint maximumEnergyShield, Func<string, int> get) =>
+        get("keystone_eternal_youth") == 0 || RechargeBlocked(get) ? 0 : RechargeValue(maximumEnergyShield, get);
+
+    /// <summary>When the pools were last damaged: what the recharge delay counts from.</summary>
+    public double InterruptedAt => interruptedAt;
+
     public static uint Max(int flat, int increased) =>
         (uint)Math.Clamp(((long)Math.Max(0, flat) * Math.Max(0L, 100L + increased) + 50) / 100, 0, int.MaxValue);
     public static double Delay(Func<string, int> get) => 2 / Math.Max(0.01, 1 + get("energy_shield_delay_-%") / 100.0);
-    public static double RechargePerMinute(uint max, Func<string, int> get) =>
+    // What stops recharge whatever the pool: the native prohibitions and Ghost Reaver.
+    static bool RechargeBlocked(Func<string, int> get) =>
         get("cannot_recharge_energy_shield") != 0 || get("no_energy_shield_recharge_or_regeneration") != 0
-            || get("keystone_ghost_reaver") != 0 ? 0 :
+        || get("keystone_ghost_reaver") != 0;
+
+    // The recharge's own value: a fifth of the pool per minute, raised by its rate modifiers.
+    static double RechargeValue(uint max, Func<string, int> get) =>
         max * 20.0 * Math.Max(0, 1 + get("energy_shield_recharge_rate_+%") / 100.0)
         * Math.Max(0, 1 + get("energy_shield_recovery_rate_+%") / 100.0);
+
+    // Energy shield recharges unless something stops it or Eternal Youth sends the recharge to life instead.
+    public static double RechargePerMinute(uint max, Func<string, int> get) =>
+        RechargeBlocked(get) || get("keystone_eternal_youth") != 0 ? 0 : RechargeValue(max, get);
     public static double RegenPerMinute(uint max, Func<string, int> get) =>
         get("no_energy_shield_recharge_or_regeneration") != 0 ? 0 :
         Math.Max(0, get("base_energy_shield_regeneration_rate_per_minute") + max * get("base_energy_shield_regeneration_rate_per_minute_%") / 100.0)
