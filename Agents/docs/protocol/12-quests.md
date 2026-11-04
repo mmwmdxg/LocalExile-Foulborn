@@ -111,7 +111,8 @@ Player component ([16](16-waypoints.md) §3): the Gateway sends them with the pl
 (`PlayerQuestFlags`; WorldAreas `StartQuestFlags`, the `Visited-` flags, come from there). The client acts on them by
 itself: an area is reachable only when its WorldAreas `EndQuestFlags` are set (`0x140797750`), blockers with
 `unblock_quest_flag` read them (§2), and the quest log and tracker follow `QuestStates` (§1). `/quest_flag [<id> [off]]`
-lists, sets or clears them (dev). Session flags (`SessionQuestFlags.dat`, e.g. `a1q6-FairgravesAggro`) are kept in
+lists, sets or clears them (dev), and `/quest_complete_all` completes every act's quests by their completion flags and
+unlocks every waypoint, for a campaign skipped with commands. Session flags (`SessionQuestFlags.dat`, e.g. `a1q6-FairgravesAggro`) are kept in
 memory only: never saved, gone on the next area.
 
 **One table per quest**, one file per act (`Modules/Core/World/QuestObjects/Acts/Act<n>.cs`, a class deriving

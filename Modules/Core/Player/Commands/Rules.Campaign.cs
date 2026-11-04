@@ -43,6 +43,19 @@ static partial class CommandsRules
             var held = await GivePresetQuestItems(remote, stream, ciphers, conn, flags);
             await conn.Commands!.Reply($"Preset {args[0]}: {added} of {flags.Count} quest flag(s) added, {waypoints} waypoint(s) unlocked" +
                 (held.Count > 0 ? $", quest item(s) held: {string.Join(", ", held)}." : "."));
+        })
+
+        .Add("quest_complete_all", "/quest_complete_all (dev: complete every act's quests by their completion flags and unlock every waypoint, for a campaign skipped with commands)", async args =>
+        {
+            var states = QuestStates.Default.Value;
+            var quests = Enumerable.Range(1, 11).SelectMany(states.QuestsOfAct).ToList();
+            var flags = CampaignState.CompletionFlags(quests);
+            int before = conn.QuestFlagsSnapshot().Count;
+            await SetQuestFlags(remote, stream, ciphers, conn, flags);
+            int added = conn.QuestFlagsSnapshot().Count - before;
+            int waypoints = await UnlockAllWaypoints(remote, stream, ciphers, conn, "/quest_complete_all");
+            await conn.Commands!.Reply($"Completed {quests.Count} quest(s): {added} of {flags.Count} flag(s) added, " +
+                $"{waypoints} waypoint(s) unlocked. The client refreshes the markers from them (0x02ba).");
         });
 
     // A character that finished an act knows its waypoints; a preset stands in for having played it: the waypoints of every
@@ -50,6 +63,30 @@ static partial class CommandsRules
     // presets list story flags only (Act1Complete has no a1q1-KilledHillock), and an activated waypoint brings its area's
     // access flags with it (16-waypoints.md §4). Without them a preset character starts on The Twilight Strand with no way to
     // travel but Act 1's gated exits.
+    // Every waypoint and every pinned area visited (the /waypoints all rule), for commands that skip the campaign.
+    static async Task<int> UnlockAllWaypoints(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn, string why)
+    {
+        var entries = WaypointCatalog.Areas.Entries;
+        List<string> all;
+        string[] visited;
+        lock (conn.Monsters)
+        {
+            if (HardcoreProgressBlocked(conn)) return 0;
+            lock (conn.Waypoints)
+            {
+                conn.Waypoints.Clear();
+                conn.Waypoints.UnionWith(entries.Select(e => e.Id));
+                conn.Visited.UnionWith(WaypointCatalog.Visits.PinnedAreas);
+                all = [.. conn.Waypoints];
+                visited = [.. conn.Visited];
+            }
+        }
+        CharacterSaves.SetWaypoints(CharacterName(conn), all);
+        CharacterSaves.SetVisited(CharacterName(conn), visited);
+        await SendWaypointList(remote, stream, ciphers, conn, why);
+        return all.Count;
+    }
+
     static async Task<int> UnlockPresetWaypoints(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn, string presetId)
     {
         var states = QuestStates.Default.Value;
