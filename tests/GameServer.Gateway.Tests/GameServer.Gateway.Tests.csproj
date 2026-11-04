@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GameServer.Gateway\GameServer.Gateway.csproj" />
+    <ProjectReference Include="..\..\Modules\Core\Game\Game.csproj" />
+    <ProjectReference Include="..\..\Modules\PhreciaAscendancies\PhreciaAscendancies.csproj" />
+    <!-- The campaign oracle plays the act tables the QuestObjects module registers (QuestEngineTests). -->
+    <ProjectReference Include="..\..\Modules\Core\World\QuestObjects\QuestObjects.csproj" />
+    <!-- The campaign driver's dev commands (CampaignCommandTests). -->
+    <ProjectReference Include="..\..\Modules\Core\Player\Commands\Commands.csproj" />
+    <!-- The Atlas's completed maps (AtlasProgressTests). -->
+    <ProjectReference Include="..\..\Modules\Core\World\Atlas\Atlas.csproj" />
+  </ItemGroup>
+</Project>
