@@ -1,165 +1,155 @@
-# LocalExile-Foulborn
+# 中文安装与使用指南
 
-LocalExile 本地服务端（PoE 1 / 3.29.3b），在官方主干上加入了以下**已实机验证**的功能。
+本指南适用于 [LocalExile-Foulborn](https://github.com/mmwmdxg/LocalExile-Foulborn) 的 `main` 源码版本。功能说明及限制见 [首页](README.md)，更完整的开发排错见 [上游环境指南](Agents/GettingStarted.md)。
 
-## 功能清单
+> 客户端必须为 PoE **3.29.3b 独立版**。始终在仓库根目录执行命令。不要通过官方启动器、Steam 或直接双击游戏程序启动本地客户端，以免自动更新。
 
-| 功能 | 指令 / 说明 |
-|---|---|
-| 穢生传奇 | `/item foulborn <传奇名>`（256 个传奇有映射，替换最右侧显式词条） |
-| 穢生通货 | 穢生增幅石 / 富豪石 / 崇高石，规则同普通对应通货 |
-| 首饰催化剂 | 品质数值 + 品质类型（属性/抗性/防御…） |
-| 品质指令 | `/item_quality <值> <类型行>`，`/item_mods` 显示类型名 |
-| 裁缝宝珠 | 替换胸甲附魔；1/4 概率重铸插槽；附魔颜色约束会改写插槽颜色 |
-| 机会石 | 按传奇掉落权重决定是否成为该底材传奇，失败保持普通并消耗 |
-| 正火伤害 | 吃增伤（全局/火焰/元素/持续/范围）、DoT 倍率与支持宝石总增 |
+## 一、准备环境
 
----
-
-## 一、环境准备
-
-### 1. 安装 .NET 10 SDK
-
-下载并安装 <https://dotnet.microsoft.com/download/dotnet/10.0>，装完在 PowerShell 里确认：
+安装 Git、[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) 和 [Node.js 24](https://nodejs.org/)，使用 Windows 10/11 x64 与 PowerShell 5.1+。先确认：
 
 ```powershell
 dotnet --version
+node --version
+npm --version
+git clone https://github.com/mmwmdxg/LocalExile-Foulborn.git
+cd LocalExile-Foulborn
+npm --prefix Tools/ooz ci
+dotnet restore
+dotnet build --no-restore
 ```
 
-应输出 `10.x.x`。
+.NET 应为 `10.x`，Node 建议为 `24.x`。首次安装需要联网获取依赖，游戏数据由自己的客户端提取，不从仓库下载。
 
-### 2. 准备客户端（需自行合法持有）
+## 二、复制客户端
 
-必须是 **3.29.3b 独立客户端（standalone / 带 Content.ggpk）**，Steam 或 Epic 版不适用。
-
-把整个客户端目录的内容复制到仓库的 `Client/` 下，然后：
-
-1. 复制一份 `PathOfExile.exe`，重命名为 **`Game.exe`**；
-2. 确认 `Client/Content.ggpk` 存在。
-
-整理完成后应是：
-
-```
-LocalExile-Foulborn/
-  Client/
-    Content.ggpk          ← 必须有
-    Game.exe              ← 由 PathOfExile.exe 复制改名
-    PathOfExile.exe       ← 原文件保留
-    ...客户端其余文件
-```
-
-> `Game.patched.exe` 和 `data/` 由下面第 3 步生成，**不需要**手动准备。
-
----
-
-## 二、首次初始化（只做一次）
-
-在仓库根目录打开 PowerShell：
+先关闭客户端，保留一份原始安装备份。把整个客户端目录复制到仓库下的 `Client`，不要只复制程序文件：
 
 ```powershell
-& {
-    Set-Location '路径\LocalExile-Foulborn'
-
-    # 1) 生成登录签名密钥
-    dotnet run --project src/GameServer.Auth -- keygen .\Client\Game.exe
-
-    # 2) 生成打过补丁的客户端
-    dotnet run --project src/GameServer.Auth -- patch .\Client\Game.exe .\Client\Game.patched.exe
-}
+# 用自己的安装目录替换示例路径；robocopy 返回值小于 8 通常表示成功。
+robocopy "D:\Games\Path of Exile" Client /E
+Copy-Item Client/PathOfExile.exe Client/Game.exe
 ```
 
-成功后应出现 `data/login-keys.json` 和 `Client/Game.patched.exe`。
+目录结构应包含：
 
----
+```text
+LocalExile-Foulborn/
+  Client/
+    Content.ggpk
+    PathOfExile.exe
+    Game.exe
+    …其余客户端文件
+  scripts/
+  src/
+  Tools/
+```
 
-## 三、启动
+不要覆盖已有的本地客户端或存档来试错；其他版本客户端无法靠改文件名变成 3.29.3b。
+
+## 三、首次初始化
+
+以下命令依次执行，某一步失败时先停止排错，不要继续启动：
+
+```powershell
+# 生成自己的登录密钥；已有密钥时保留，不要重复生成。
+dotnet run --project src/GameServer.Auth -- keygen Client/Game.exe
+# 生成信任本地密钥的客户端副本，不覆盖 Game.exe。
+dotnet run --project src/GameServer.Auth -- patch Client/Game.exe Client/Game.patched.exe
+# 显式修改客户端网关列表，必须在客户端关闭时执行。
+dotnet run --project src/GameServer.Patch -- gateway --login 127.0.0.1:20493
+```
+
+网关命令会修改客户端副本中的 GGPK，并保存原网关列表。不要对唯一的原始客户端副本操作。密钥已存在时，跳过 keygen，确保补丁客户端与现有密钥配套。
+
+## 四、创建本地账号
+
+不是随便输入账号密码就能登录。先执行：
+
+```powershell
+dotnet run --project src/GameServer.Auth -- register myaccount
+```
+
+程序启动后输入密码并回车（从标准输入读取，终端可能回显，请勿使用官方账号密码）。看到账号创建成功后，在游戏登录框输入同一个账号名和密码。账号只保存在本地；已有账号无需重新注册。
+
+## 五、启动与繁体中文
 
 ```powershell
 .\scripts\dev\live.ps1
 ```
 
-- **第一次**会从 `Client/Content.ggpk` 提取全部游戏数据到 `data/`，**可能几十分钟**；
-- 之后启动只需几秒；
-- 出现 `servers up` 后客户端会自动打开。
+首次启动会提取游戏数据；耗时取决于机器与磁盘。后续启动会检查提取状态。不要把启动脚本输出接到管道，也不要为了等待界面再开第二个客户端。
 
-想用繁体中文界面：
+繁中入口：
 
 ```powershell
 .\Start-LocalExile-TW.cmd
 ```
 
-> ⚠️ 只通过 `live.ps1` 启动客户端。直接双击游戏 exe 会连官方补丁服务器，可能把客户端更新掉。
+该入口仍调用标准启动脚本，并设置项目内临时目录。它通过 `fr` 语言入口使用已有繁中资源映射，**不负责下载、安装或转换中文资源**；仅有标准英文／法文资源的客户端不能保证显示中文。
 
----
-
-## 四、首次登录
-
-1. 邮箱随意填（例：`myaccount`），密码随意；
-2. 点 **LOG IN**；
-3. 首次进入会创建角色。
-
-如果登录界面显示 “An unexpected disconnection occurred.”，先确认 `live.ps1` 窗口里出现过 `servers up`。
-
----
-
-## 五、快速验证功能
-
-进入游戏后依次输入：
-
-```text
-/item foulborn Cloak of Defiance
-/item foulborn Might of the Meek
-/item_quality 20 6
-/item Intrinsic Catalyst 10
-/item Tailoring Orb 10
-/item Foulborn Orb of Augmentation 10
-```
-
-预期：
-
-- 前两条生成标题带「穢生」的紫色物品；
-- `/item_mods` 显示 `quality 20% (Attribute)`；
-- 催化剂每次 +1% 品质，到 20% 停止；
-- 裁缝石替换附魔，偶尔改变插槽数；
-- 穢生增幅石可给魔法物品加词缀。
-
----
-
-## 六、常见问题
-
-| 现象 | 原因与处理 |
-|---|---|
-| 脚本被拒绝执行（SecurityError） | 用 `Set-ExecutionPolicy -Scope Process Bypass -Force` 后重试 |
-| `Game.patched.exe missing` | 回到第二步执行 `patch` 命令 |
-| `Content.ggpk missing` | `Client/` 不是独立客户端，换 standalone 版 |
-| `login-keys.json missing` | 回到第二步执行 `keygen` |
-| 构建报文件被占用 | 先结束 `GameServer.Gateway` / `dotnet` 进程再 build |
-| 模块加载失败、提示 Access denied | 删除 `%LOCALAPPDATA%\Temp\localexile-mod-copy` 后重启 |
-| 登录后立刻掉线 | 看 `logs/live-gateway.log` 是否有 “has no Game module” |
-
----
-
-## 七、更新与重新生成
+若脚本被执行策略阻止，可在当前 PowerShell 会话中运行：
 
 ```powershell
-# 拉取上游或本仓库更新
-git pull
-
-# 重新生成穢生映射（可选）
-python scripts/re/foulborn_map.py            # 用 artifacts/ 缓存
-python scripts/re/foulborn_map.py --refresh  # 重新抓取 poedb
+Set-ExecutionPolicy -Scope Process Bypass -Force
+.\scripts\dev\live.ps1
 ```
 
-生成结果写入 `src/GameServer.Gateway/Item/FoulbornMap.cs`。
+服务启动后，用第四步创建的本地账号登录，并创建角色。日志位于仓库下的 `logs` 目录；不要因出现某一行启动提示就认定所有服务和玩法都已验证。
 
-## 八、测试
+## 六、测试物品与品质
+
+进入游戏后可逐条输入：
+
+```text
+/item Onyx Amulet
+/item Intrinsic Catalyst 10
+/item foulborn Mageblood
+```
+
+把测试首饰拿到鼠标上，再输入：
+
+```text
+/item_quality 20 6
+/item_mods
+```
+
+常用品质类型：`3` 防御、`4` 生命／魔力、`5` 抗性、`6` 属性、`8` 速度、`9` 暴击、`16` 前缀、`17` 后缀。品质只影响匹配且允许缩放的词缀，不会放大整件物品的所有数值。
+
+催化剂的自动回归测试已通过，但实机属性对照仍待完成。可先记录测试首饰的力量贡献，增加品质，再检查角色面板与取下装备后的恢复值。穢生物品标题或外观出现，不等于其特殊机制全部正确；其他功能边界见首页。
+
+## 七、更新、备份与排错
+
+更新前关闭本地服务与客户端，并备份本地数据目录（含存档和密钥）及客户端副本。之后从本仓库获取更新：
+
+```powershell
+git pull --ff-only
+npm --prefix Tools/ooz ci
+dotnet restore
+dotnet build --no-restore
+```
+
+有本地改动时先检查 `git status`，不要用强制重置清掉自己的修改。启动器部分更新提示仍来自上游，不要直接用上游发布包覆盖此版本。
+
+| 现象 | 优先检查 |
+|---|---|
+| 找不到补丁程序 | 第三步是否成功，程序是否被安全软件隔离；不要盲目关闭系统防护 |
+| 解压工具报错／缺少 ooz-wasm | Node 是否可用，工具依赖安装是否成功 |
+| 数据表缺失 | 查看提取日志，必要时显式运行 `.\scripts\dev\extract-data.ps1` |
+| 登录断开 | 核对账号、登录密钥与补丁是否配套，再看 Auth／Gateway 日志 |
+| 临时目录拒绝访问 | 使用繁中入口的项目内临时目录，或检查本机临时目录权限；不要删除存档排错 |
+| 中文未生效 | 确认客户端是否已有对应中文资源映射；语言参数不是中文补丁 |
+| 功能表现与正式服不同 | 先查首页限制及功能状态，不要将本地规则当作官方完整实现 |
+
+开发验证命令：
 
 ```powershell
 dotnet build
 dotnet test tests/GameServer.Gateway.Tests
+dotnet test tests/GameServer.Core.Tests
+dotnet test tests/GameServer.Data.Tests
 ```
 
 ## 上游与许可
 
-基于 [LocalExile/LocalExile](https://github.com/LocalExile/LocalExile)（GPL-2.0）。本仓库的玩法改动集中在
-`foulborn-crafting` 分支，客户端与提取数据不随仓库分发。
+本项目基于 [LocalExile](https://github.com/LocalExile/LocalExile)，与 Grinding Gear Games 无关。许可及分发要求见 [LICENSE](LICENSE) 与 [第三方声明](THIRD-PARTY-NOTICES.md)。不要上传游戏文件、提取数据、存档、账号或密钥。
