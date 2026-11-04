@@ -1360,8 +1360,12 @@ This is a research baseline, not new live skill acceptance or complete native/se
   The default attack, Fireball and monster melee build packets and read the player's/skill's conversion stats;
   packet mitigation applies each type's own resistance, and the physical part then goes through armour.
   Righteous Fire's burn uses the DoT tick model: its per-second damage is the life and energy-shield base share scaled
-  by the increased-damage stats that name it (global, fire, elemental, damage over time and area damage) and by the
-  fire/DoT multipliers; the skill's own gem "more" multipliers and buff-effect scaling are still not modelled.
+  by the increased-damage stats that name it (global, fire, elemental, damage over time, fire damage over time, burning
+  and area damage, whose Id is `area_damage_+%`) and by the fire/DoT multipliers and the skill's *_final ones,
+  Burning Damage support included.
+  Its radius and base shares are recomputed every tick from the gem's live level and the character's area stats, and the
+  ring is rebuilt when the radius changes; automated coverage passes and the real-client check is pending.
+  The RF-specific `righteous_fire_damage_+%` stays unread until its ownership by the ordinary burn is established.
   A damage-type immunity (`*_immunity`, `elemental_damage_immunity`) zeroes that type on the player's hits, from the
   same sources the panel's Immune rows use (`DamageImmunities.cs`).
   Ordinary player energy shield derives from equipment, intelligence and passives.

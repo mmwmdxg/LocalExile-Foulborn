@@ -360,7 +360,7 @@ static partial class Game
             conn.RighteousFire = new RighteousFireState(buff, aura, ringAo is null ? null : ring, skillId,
                 DamagePctPerMinute: Get("base_righteous_fire_%_of_max_life_to_deal_to_nearby_per_minute", 4200),
                 BurnPctPerMinute: Get("base_nonlethal_fire_damage_%_of_maximum_life_taken_per_minute", 5400),
-                Radius: radius) { AuraVisual = auraVisual,
+                Radius: radius) { AuraVisual = auraVisual, RingAo = ringAo,
                     EnergyShieldBurnPctPerMinute = Get("base_nonlethal_fire_damage_%_of_maximum_energy_shield_taken_per_minute", 4200),
                     EnergyShieldDamagePctPerMinute = Get("base_righteous_fire_%_of_max_energy_shield_to_deal_to_nearby_per_minute", 4200) };
         }
@@ -459,7 +459,9 @@ static partial class Game
                 if (rf is not null) await EndRighteousFire(remote, stream, ciphers, conn, "death");
                 continue;
             }
-            if (rf is not null && !InGracePeriod(conn)) await BurnAround(remote, stream, ciphers, conn, rf, seconds);
+            if (rf is not null && !InGracePeriod(conn)
+                && await RefreshRighteousFire(remote, stream, ciphers, conn, rf) is { } burning)
+                await BurnAround(remote, stream, ciphers, conn, burning, seconds);
             // The character panel's Spell Suppression chance again (0x1b3 with only its stats) when a condition changed
             // it: full life lost or regained, a walk started or ended, an enemy hit 4 s ago.
             if (Suppression(conn).Chance is var chance && chance != suppression)
@@ -659,29 +661,71 @@ static partial class Game
             else Console.WriteLine($"[gateway] {remote} flask {e.Slot} effect ends ({why})");
     }
 
+    // What the running Righteous Fire deals and how far it reaches, from the gem's stats at its current level and the
+    // character's live area stats: gear, tree and gem-level changes take effect while it burns instead of staying at the
+    // values it started with.
+    internal static RighteousFireState RefreshedRighteousFire(ClientState conn, RighteousFireState rf)
+    {
+        var stats = MergeSkillStats(AreaPlayerStats(conn), SupportedSkill(conn, rf.Skill).Stats);
+        int Get(string name, int fallback) =>
+            Stats.Key(name) is uint k && stats.TryGetValue(k, out int v) ? v : fallback;
+        return rf with
+        {
+            Radius = SkillArea.Radius(Get("active_skill_base_area_of_effect_radius", 18), name => Get(name, 0), spell: true),
+            DamagePctPerMinute = Get("base_righteous_fire_%_of_max_life_to_deal_to_nearby_per_minute", rf.DamagePctPerMinute),
+            EnergyShieldDamagePctPerMinute = Get("base_righteous_fire_%_of_max_energy_shield_to_deal_to_nearby_per_minute",
+                rf.EnergyShieldDamagePctPerMinute),
+            BurnPctPerMinute = Get("base_nonlethal_fire_damage_%_of_maximum_life_taken_per_minute", rf.BurnPctPerMinute),
+            EnergyShieldBurnPctPerMinute = Get("base_nonlethal_fire_damage_%_of_maximum_energy_shield_taken_per_minute",
+                rf.EnergyShieldBurnPctPerMinute),
+        };
+    }
+
+    // The tick's view of the running fire: refreshed values, and the ring drawn again when its radius changed, so the
+    // circle the client shows is the one the burning reaches. Returns null if the fire ended meanwhile.
+    internal static async Task<RighteousFireState?> RefreshRighteousFire(string remote, NetworkStream stream,
+        ConnectionCiphers ciphers, ClientState conn, RighteousFireState rf)
+    {
+        var refreshed = RefreshedRighteousFire(conn, rf);
+        // Unchanged values keep the running record: the tick's 250 ms rate cache keys on it (cachedRf).
+        if (refreshed == rf) return rf;
+        if (refreshed.Radius == rf.Radius || refreshed.RingAo is not { } ringAo)
+        {
+            lock (conn.Monsters) conn.RighteousFire = refreshed;
+            return refreshed;
+        }
+        uint ring;
+        lock (conn.Monsters)
+        {
+            if (conn.RighteousFire is null) return null;
+            ring = conn.NextObjectId++;
+            conn.RighteousFire = refreshed with { Ring = ring };
+        }
+        double now = ProjectileWorldTime(conn);
+        var here = conn.Walk.Position(now);
+        float scale = (float)(refreshed.Radius * (250.0 / 23) / (Art.ArtRadius(ringAo) ?? 400));
+        if (rf.Ring is uint old)
+            await Send(remote, stream, ciphers, InstanceProtocol.RemoveObject(old),
+                $"0x02bb remove effect 0x{old:x} (Righteous Fire's ring: radius {rf.Radius} -> {refreshed.Radius})");
+        await Send(remote, stream, ciphers, InstanceEntities.CreateObject(ring, InstanceEntities.ObjectTypeHash(EffectObject.TypePath),
+            new EffectObject(here.X, here.Y, ringAo) { Parent = PlayerId, Scale = scale }.Blob()),
+            $"0x02b9 create effect 0x{ring:x} {ringAo} at ({here.X}, {here.Y}), scale {scale:0.###} for radius {refreshed.Radius}");
+        await Send(remote, stream, ciphers, InstanceProtocol.EnterWakeZone(ring), null);
+        return conn.RighteousFire!;
+    }
+
     // Righteous Fire's damage to the hostile monsters within its radius for one tick, with their aura buff on while they
     // are inside.
     internal static async Task BurnAround(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn, RighteousFireState rf, double seconds)
     {
         double now = conn.Clock.Elapsed.TotalSeconds;
-        double perSecond = (conn.PlayerMaxLife * (double)rf.DamagePctPerMinute + conn.Pools.EnergyShield * (double)rf.EnergyShieldDamagePctPerMinute) / 6000.0;
         var playerStats = CharacterPlayerStats(conn);
         // The burning is a fire damage-over-time area skill: its stats are the character's merged with the socketed
         // supports' (Burning Damage, Concentrated Effect, ...). Increased stats add up, the *_final ones multiply.
         var rfStats = MergeSkillStats(AreaPlayerStats(conn), SupportedSkill(conn, rf.Skill).Stats);
-        double increased = 0;
-        foreach (string key in new string[] {"damage_+%", "fire_damage_+%", "elemental_damage_+%", "damage_over_time_+%", "area_damage_+" })
-            if (Stats.Key(key) is uint id) increased += rfStats.GetValueOrDefault(id);
-        perSecond *= Math.Max(0, 1 + increased / 100.0);
-        double multiplier = 0;
-        foreach (string key in new string[] {"fire_dot_multiplier_+", "dot_multiplier_+" })
-            if (Stats.Key(key) is uint id) multiplier += rfStats.GetValueOrDefault(id);
-        perSecond *= Math.Max(0, 1 + multiplier / 100.0);
-        foreach (string key in new string[] {"active_skill_fire_damage_+%_final", "active_skill_elemental_damage_+%_final",
-            "combined_fire_damage_+%_final", "combined_elemental_damage_+%_final",
-            "combined_all_damage_over_time_+%_final", "combined_elemental_damage_over_time_+%_final",
-            "combined_fire_damage_over_time_+%_final", "support_area_concentrate_area_damage_+%_final" })
-            if (Stats.Key(key) is uint id) perSecond *= Math.Max(0, 1 + rfStats.GetValueOrDefault(id) / 100.0);
+        double perSecond = RighteousFireDamage.PerSecond(conn.PlayerMaxLife, conn.Pools.EnergyShield,
+            rf.DamagePctPerMinute, rf.EnergyShieldDamagePctPerMinute,
+            key => Stats.Key(key) is uint id ? rfStats.GetValueOrDefault(id) : 0);
         if (Stats.Key("delirium_aura_damage_over_time_+%_final") is uint moreDot)
             perSecond *= Math.Max(0, 1 + playerStats.GetValueOrDefault(moreDot) / 100.0);
         perSecond *= ChargeDamageMore(playerStats);

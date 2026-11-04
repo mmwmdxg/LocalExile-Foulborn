@@ -184,6 +184,8 @@ sealed record RighteousFireState(ushort Buff, ushort SelfAura, uint? Ring, ushor
     public int EnergyShieldBurnPctPerMinute { get; init; }
     public int EnergyShieldDamagePctPerMinute { get; init; }
     public readonly Dictionary<uint, ushort> Auras = [];
+    /// <summary>The ring's MiscAnimated path, so it can be rebuilt when the radius changes (null: no ring art).</summary>
+    public string? RingAo { get; init; }
     /// <summary>The worn skill effect's righteous_fire_aura visual (BuffVisuals row; null: the row's own), on the enemies too.</summary>
     public ushort? AuraVisual { get; init; }
 }
