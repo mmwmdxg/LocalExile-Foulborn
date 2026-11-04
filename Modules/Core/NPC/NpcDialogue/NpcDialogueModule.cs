@@ -34,6 +34,12 @@ public sealed class NpcDialogueModule : IModule
             case "IdentifyItems":
                 await world.NpcIdentifyItems();
                 return true;
+            // Inviting this NPC to the hideout: the hideout's NPCs are a fixed list (NpcCatalog.Hideout: Nessa, Niko,
+            // Helena, Kirac and Einhar), so there is no invitation state to change yet. Answer anyway, so the window does not
+            // wait for a reply that never comes.
+            case "InviteToHideout":
+                await world.NpcClose("0x0084 NPC invite to hideout: the hideout's NPCs are a fixed list");
+                return true;
             default:
                 return false;
         }
