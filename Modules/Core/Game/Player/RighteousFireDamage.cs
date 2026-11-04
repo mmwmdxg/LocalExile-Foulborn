@@ -22,6 +22,13 @@ static class RighteousFireDamage
          "combined_fire_damage_over_time_+%_final", "support_area_concentrate_area_damage_+%_final",
          "support_burning_damage_+%_final"];
 
+
+    /// <summary>The burning's cost to the player per second before fire resistance: the percentages of maximum life and
+    /// energy shield per minute (the stats are percent per minute, so 6000 is 60 seconds and 100 percent).</summary>
+    internal static double SelfBurnPerSecond(long maximumLife, long maximumEnergyShield, int lifePctPerMinute,
+        int energyShieldPctPerMinute) =>
+        (maximumLife * (double)lifePctPerMinute + maximumEnergyShield * (double)energyShieldPctPerMinute) / 6000.0;
+
     /// <summary>The burning's damage per second for one tick.</summary>
     internal static double PerSecond(long maximumLife, long maximumEnergyShield, int lifePctPerMinute,
         int energyShieldPctPerMinute, Func<string, int> get)

@@ -27,6 +27,14 @@ public class RighteousFireDamageTests
         Assert.Equal(Base * 2.5, RighteousFireDamage.PerSecond(5000, 0, 4200, 4200, Getter(stats)), 6);
     }
 
+
+    [Fact]
+    public void Self_burn_is_the_life_and_shield_share_before_fire_resistance()
+    {
+        // 5,400 a minute is 90% a second of 5,000 life (4,500); 4,200 a minute is 70% a second of 1,000 shield (700).
+        Assert.Equal(5200, RighteousFireDamage.SelfBurnPerSecond(5000, 1000, 5400, 4200), 6);
+    }
+
     [Fact]
     public void Dot_multipliers_and_final_mores_multiply_after_the_increases()
     {

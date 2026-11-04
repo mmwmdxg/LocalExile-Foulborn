@@ -569,7 +569,9 @@ static partial class Game
                     recoveryStats = CharacterPlayerStats(conn);
                     zealotsOath = PanelStats.ZealotsOath(RecoveryStat);
                     convertLifeRegen = zealotsOath && EnergyShield.ConversionAllowed(RecoveryStat);
-                    burnPerSecond = rf is null ? 0 : DamageModel.Mitigate((conn.PlayerMaxLife * (double)rf.BurnPctPerMinute + conn.Pools.EnergyShield * (double)rf.EnergyShieldBurnPctPerMinute) / 6000.0,
+                    burnPerSecond = rf is null ? 0 : DamageModel.Mitigate(
+                        RighteousFireDamage.SelfBurnPerSecond(conn.PlayerMaxLife, conn.Pools.EnergyShield,
+                            rf.BurnPctPerMinute, rf.EnergyShieldBurnPctPerMinute),
                         Resistance(conn, DamageType.Fire), MaxResistance(conn, DamageType.Fire));
                     (ratesAt, cachedRf) = (now, rf);
                 }
