@@ -1496,12 +1496,11 @@ Live 2026-10-18 with the Witch's Fireball. Code: `SkillCatalog.EffectStats`, `Ge
   `holy_strike_maximum_number_of_animated_weapons` itself from `base_holy_strike_maximum_number_of_animated_weapons` and
   `double_holy_strike_animated_weapons_limit`: 0x1400c37d1 registers 0x14279ee30), and the Templar rig's missing
   mace/sceptre stances (`Art/Models/CHARACTERS/Templar/rig.amd`).
-- **Damage** (`SpellHit.cs`, `SpellDamage.cs`). Projectile hits, area hits and the selected spell's panel
+- **Damage** (`GemSupports.Rules.cs`, `SpellDamage.cs`). Projectile hits, area hits and the selected spell's panel
   share the same typed packet: the catalog base hit, flat added spell damage scaled by damage effectiveness,
   conversion/gain with complete type history, then the matching generic/spell/elemental/typed/context increase bucket
   and supported aura/support more factors. Each visited modifier applies once, including ancestors of Chaos.
-  Existing source precedence remains distinct at its established seams: interim `SpellHit` uses own-key overrides
-  and player-first level-only conversion; final `SupportedHit` merges player and supported skill inputs with
+  `SupportedHit` merges player and supported skill inputs with
   `MergeSkillStats`, retaining its existing base-field replacements and quality inputs. Panel and actual supported
   combat both finish with that same final supported packet.
   The final packet still applies the actual caster's spell-damage restriction and clears inherited hand rows.
@@ -3287,7 +3286,7 @@ per-use critical rolls are shared as documented above. Remaining source conditio
 [Damage §2h](20-damage.md#2h-ordinary-attack-evasion-and-critical-confirmation) records the source evidence,
 snapshot/admission decisions, alternatives, parsed-contact controls and remaining native work.
 
-**Selected attack-gem hit rows (#196)** (`AttackSkillHit`, `AttackPanelStats`): main-hand total and per-type
+**Selected attack-gem hit rows (#196)** (`SupportedHitFor`, `AttackPanelStats`): main-hand total and per-type
 ranges now use the same packet constructor as projectile and area attack combat.
 The constructor starts with raw local weapon and added damage, applies the skill's level-aware effectiveness,
 then resolves conversion/gain history and inherited modifiers together through `PlayerHitDamage`.
@@ -3323,7 +3322,7 @@ Local integration captures are `logs/attack-damage-burning-arrow-{default,added-
 and `logs/attack-damage-server-hit.json`; no extracted data changes are needed.
 
 **Selected spell hit rows** (`SpellPanelStats`, issue #188): `spell_minimum/maximum_total_damage` and
-`spell_minimum/maximum_{physical,fire,cold,lightning,chaos}_damage` come from `SpellHit.Resolve`, the same converted
+`spell_minimum/maximum_{physical,fire,cold,lightning,chaos}_damage` come from `SupportedHitFor`, the same converted
 packet used by projectile and area combat. Every spell range is written, including zeros for absent types and hitless
 spells. CharacterPanelStats reads total keys 674/675, physical 261/262, fire 255/256, cold 253/254, lightning 257/259
 and chaos 258/260 as whole integers, with `casting_spell` (438) required and

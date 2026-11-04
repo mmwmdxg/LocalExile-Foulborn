@@ -155,8 +155,6 @@ Spatial index: Positioned objects go into buckets of 23×23 grid units, index (y
    (Actor/skills, Stats, inventories, the 0x21 records, a Hideouts lookup that returned null).
 
 ## In game (Frida-traced, 2026-10-16 13:01)
-![first in-game frame](evidence/2026-10-16-first-in-game.jpg)
-
 The patched client reached the in-game state (HUD, life/mana orbs, flask and skill bars, minimap). After entering
 it sends C→S **0x1b** (u8 + 4 bytes) every 100–500 ms, the state-3 tick branch of `0x142148880`. The Gateway's full
 sequence after the client's 0x7d:

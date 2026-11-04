@@ -6,8 +6,6 @@ shows its icon on the map and puts it in the wake zone. Using it is in [09](09-a
 2026-10-18: **every area gets its area transitions** with destinations (§7): verified live town ↔ The Coast ↔ The Tidal
 Island, The Coast → The Mud Flats and The Mud Flats' three.
 
-![The Coast exit on the town map](../re/evidence/2026-10-16-coast-exit-on-map.jpg)
-
 Code: `AreaTransitionObject` (`src/GameServer.Core/Protocol/Instance/InstanceEntities.cs`), `AreaTransitionCatalog`
 (`src/GameServer.Gateway/World/AreaTransitionCatalog.cs`), `AreaLayouts` (`src/GameServer.Gateway/World/AreaLayouts.cs`). Tests: `InstanceEntitiesTests.Area_transition_blob_layout_and_type`,
 `Area_transition_with_a_tile_object_model_rotation_and_height`.

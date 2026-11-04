@@ -138,11 +138,9 @@ Positions are in grid units of the area's terrain grid. The log line "Static Wal
 cell) to `Tools/re/out/walk-{a,b}.bin`. Layer **a** is a distance-from-edge field: 5 inside (13 039 cells, bbox x 124–387,
 y 121–309), falling to 1 at the boundary, 0 = blocked. The client walks on 2 and 3; the movement estimator treats ≥ 2 as
 walkable ([07](07-latency-visibility-movement.md) §5). Layer b is mostly 5 outside the town (probably a different mask, unused).
-Picture: [../re/evidence/1_1_town-walkability.png](../re/evidence/1_1_town-walkability.png).
 
 The Gateway spawns at **(197, 261)**, the walkable cell farthest from any edge (clearance 32). The old (115, 69) was sea.
-Result: [../re/evidence/2026-10-16-spawn-on-land.jpg](../re/evidence/2026-10-16-spawn-on-land.jpg) (beach, pier,
-minimap marker inside the town outline). The character model is not visible yet.
+The historical capture placed the minimap marker inside the town outline; the character model was not visible yet.
 
 ## Open
 

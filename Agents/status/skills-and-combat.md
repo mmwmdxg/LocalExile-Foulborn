@@ -628,7 +628,7 @@ Part of [Status](../Status.md); what to build next in this area is in
   Fresh ordered joint controls at `c9cd1864` verify Fireball 200 / zero, attack 100 and restored Fireball 200.
   Final attributes and converted pools remain active in that same unascended Marauder session.
   Rampager 49937 supplies the source, but class admission, owner execution and the node's other mechanics are separate.
-  Code: `SkillDamageContext`, `SupportedHit`, `SpellHit`, `BurnAround`, `GemSkills`.
+  Code: `SkillDamageContext`, `SupportedHit`, `BurnAround`, `GemSkills`.
   Docs: [20](../docs/protocol/20-damage.md) section 2g.
 - Spells are released at the cast animation's contact keyframe (Witch 599 of 1066 ms;
   every class's from its rig .amd), with the server duration adjusted once for cast speed.

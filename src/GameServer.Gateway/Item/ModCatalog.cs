@@ -9,10 +9,11 @@ using GameServer.Core.Protocol.Instance;
 sealed class ModCatalog(string folder = "data", bool hardMode = false, ModRangeProvider? ranges = null)
 {
     public ModRangeProvider Ranges { get; } = ranges ?? ModRangeProvider.Default;
+    public CatalystQuality CatalystQuality { get; } = new(folder);
 
     /// <summary>A stat of a mod: its Stats.dat Id, the Stat{n}Min / Stat{n}Max roll range, and Stats.dat IsLocal (the
     /// stat changes the item it is on, not the character).</summary>
-    public sealed record ModStat(string Id, int Min, int Max, bool Local = false);
+    public sealed record ModStat(string Id, int Min, int Max, bool Local = false, bool Scalable = true);
 
     /// <summary>A Mods.dat row. GenerationType 1 prefix, 2 suffix, 3 unique / base implicit, 10 enchantment …;
     /// Domain 1 items.</summary>
@@ -120,9 +121,10 @@ sealed class ModCatalog(string folder = "data", bool hardMode = false, ModRangeP
             tagsPath = Path.Combine(folder, "tables", "Tags.json"), modTypePath = Path.Combine(folder, "tables", "ModType.json");
         var rows = new List<Mod>();
         if (!File.Exists(path) || !File.Exists(statsPath)) return (rows, [], []);
-        List<(string Id, bool Local)> stats;
+        List<(string Id, bool Local, bool Scalable)> stats;
         using (var s = GameTables.Open(statsPath))
-            stats = [.. s.RootElement.EnumerateArray().Select(r => (r.GetProperty("Id").GetString() ?? "", r.GetProperty("IsLocal").GetBoolean()))];
+            stats = [.. s.RootElement.EnumerateArray().Select(r => (r.GetProperty("Id").GetString() ?? "", r.GetProperty("IsLocal").GetBoolean(),
+                r.TryGetProperty("IsScalable", out var scalable) && scalable.GetBoolean()))];
         List<string> modTypes = [];
         if (File.Exists(modTypePath))
             using (var t = JsonDocument.Parse(File.ReadAllBytes(modTypePath)))
@@ -145,9 +147,9 @@ sealed class ModCatalog(string folder = "data", bool hardMode = false, ModRangeP
             {
                 if (r.GetProperty($"StatsKey{i}") is not { ValueKind: JsonValueKind.Number } k) break;
                 int key = k.GetInt32();
-                var (statId, local) = key < stats.Count ? stats[key] : ($"#{key}", false);
+                var (statId, local, scalable) = key < stats.Count ? stats[key] : ($"#{key}", false, false);
                 // Explicit zero is meaningful (for example disabled boss rarity bonuses); it must not fall back.
-                modStats.Add(new(statId, r.GetProperty($"Stat{i}Min{suffix}").GetInt32(), r.GetProperty($"Stat{i}Max{suffix}").GetInt32(), local));
+                modStats.Add(new(statId, r.GetProperty($"Stat{i}Min{suffix}").GetInt32(), r.GetProperty($"Stat{i}Max{suffix}").GetInt32(), local, scalable));
             }
             rows.Add(new Mod(rows.Count, r.GetProperty("Id").GetString() ?? "", (ushort)r.GetProperty("HASH16").GetInt32(),
                 r.GetProperty("Name").GetString() ?? "", r.GetProperty("Domain").GetInt32(), r.GetProperty("GenerationType").GetInt32(),

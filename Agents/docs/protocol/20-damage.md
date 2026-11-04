@@ -441,7 +441,6 @@ The rule does not prohibit skill use: casting, mana costs, action timing, cooldo
 
 `SupportedHit` suppresses the final supported packet after added damage, conversion and support multipliers.
 Existing projectile and area execution consumes that packet before rolling damage and applying target mitigation.
-The standalone `SpellHit.Resolve` seam applies the same rule with its separate caster dictionary.
 The final `GemSkills` record publishes the supported packet's spell and main-hand ranges, per-use damage and DPS.
 Explicit zeros replace inherited weapon ranges, so server Life loss and native panel inputs agree.
 Removing or zeroing the source restores the next packet without rebuilding pools.
@@ -592,7 +591,7 @@ It also scales the damaging ailments an attack inflicts (the wiki; PoB builds an
 `calcDamage`), so an attack's flat ailment packet must go through `MaximumAttackDamage.Apply` too (§3).
 PoB CalcOffence applies `MaxDamage` MORE to each type's own maximum and carries it through conversion, which is the same.
 It sits next to Rage's final multiplier at every attack site: the default attack and its panel rows, the native
-physical bounds, attack gems, `AttackSkillHit` and ordinary bow and wand shots (`OrdinaryRangedShot`).
+physical bounds, attack gems and ordinary bow and wand shots (`OrdinaryRangedShot`).
 The client multiplies its three sources (volatility support, ascendancy, graft) into
 `combined_maximum_attack_damage_+%_final` (`FUN_1425d25b0`); only the ascendancy one exists on the server.
 See [Polytheist](../game/polytheist.md).

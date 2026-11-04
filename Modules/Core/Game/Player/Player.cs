@@ -670,17 +670,17 @@ static partial class Game
         // supports' (Burning Damage, Concentrated Effect, ...). Increased stats add up, the *_final ones multiply.
         var rfStats = MergeSkillStats(AreaPlayerStats(conn), SupportedSkill(conn, rf.Skill).Stats);
         double increased = 0;
-        foreach (string key in ["damage_+%", "fire_damage_+%", "elemental_damage_+%", "damage_over_time_+%", "area_damage_+"])
+        foreach (string key in new string[] {"damage_+%", "fire_damage_+%", "elemental_damage_+%", "damage_over_time_+%", "area_damage_+" })
             if (Stats.Key(key) is uint id) increased += rfStats.GetValueOrDefault(id);
         perSecond *= Math.Max(0, 1 + increased / 100.0);
         double multiplier = 0;
-        foreach (string key in ["fire_dot_multiplier_+", "dot_multiplier_+"])
+        foreach (string key in new string[] {"fire_dot_multiplier_+", "dot_multiplier_+" })
             if (Stats.Key(key) is uint id) multiplier += rfStats.GetValueOrDefault(id);
         perSecond *= Math.Max(0, 1 + multiplier / 100.0);
-        foreach (string key in ["active_skill_fire_damage_+%_final", "active_skill_elemental_damage_+%_final",
+        foreach (string key in new string[] {"active_skill_fire_damage_+%_final", "active_skill_elemental_damage_+%_final",
             "combined_fire_damage_+%_final", "combined_elemental_damage_+%_final",
             "combined_all_damage_over_time_+%_final", "combined_elemental_damage_over_time_+%_final",
-            "combined_fire_damage_over_time_+%_final", "support_area_concentrate_area_damage_+%_final"])
+            "combined_fire_damage_over_time_+%_final", "support_area_concentrate_area_damage_+%_final" })
             if (Stats.Key(key) is uint id) perSecond *= Math.Max(0, 1 + rfStats.GetValueOrDefault(id) / 100.0);
         if (Stats.Key("delirium_aura_damage_over_time_+%_final") is uint moreDot)
             perSecond *= Math.Max(0, 1 + playerStats.GetValueOrDefault(moreDot) / 100.0);

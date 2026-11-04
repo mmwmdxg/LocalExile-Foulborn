@@ -391,6 +391,8 @@ Part of [Status](../Status.md); what to build next in this area is in
   other classes, capped items and mismatched catalyst types are refused before spending. The Tainted Catalyst only
   works on corrupted jewellery and takes the existing type, or a random typed row when the item has none (hypothesis,
   client verification pending).
+  Typed quality now scales eligible implicit/explicit server modifier values via table tags and IsScalable,
+  including prefix/suffix quality; raw rolls stay unchanged. Build and three test suites pass; native stat comparison pending.
 - **Eldritch Ichors (Lesser, Greater, Grand, Exceptional):** add the tier's Eater of Worlds implicit to body armour,
   boots, gloves or helmet, replacing every other implicit except Searing Exarch ones; normal/magic/rare only.
   Unique/corrupted/mirrored, non-armour and unsupported/unmodifiable targets are refused before spending.

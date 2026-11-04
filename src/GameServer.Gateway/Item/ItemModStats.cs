@@ -29,10 +29,12 @@ static class ItemModStats
 
     static IEnumerable<(string Id, int Value)> Values(IEnumerable<Item> items, ModCatalog mods, bool local = false)
     {
-        foreach (var mod in items.SelectMany(i => i.Mods))
-            if (mods.ByHash(mod.Hash) is { } row)
-                for (int s = 0; s < row.Stats.Count && s < mod.Values.Count; s++)
-                    if (row.Stats[s].Local == local) yield return (row.Stats[s].Id, mod.Values[s]);
+        foreach (var item in items)
+            foreach (var mod in item.Mods)
+                if (mods.ByHash(mod.Hash) is { } row)
+                    for (int s = 0; s < row.Stats.Count && s < mod.Values.Count; s++)
+                        if (row.Stats[s].Local == local)
+                            yield return (row.Stats[s].Id, mods.CatalystQuality.Value(item, mod, row, s));
     }
 
     /// <summary>Wide per-key attribute totals: retain them until complete raw-key replacement and bucket scaling.</summary>

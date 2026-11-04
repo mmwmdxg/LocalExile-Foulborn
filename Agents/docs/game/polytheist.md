@@ -98,7 +98,7 @@ Effect text and numbers are the wiki's (from the game's stat descriptions) and t
 - **Devout of Ryslatha, 30% more Maximum Attack Damage** (`maximum_attack_damage_+%_final_from_ascendancy`):
   `MaximumAttackDamage.Apply` scales the maximum of every final component of an attack hit, after conversion, next to
   Rage's final multiplier: the default attack and its panel rows (`AttackHitConverted`), the native main/off-hand
-  physical bounds (`WeaponStats`), attack gems (`SupportedHitFor`), `AttackSkillHit` and ordinary bows. Minimum damage
+  physical bounds (`WeaponStats`), attack gems (`SupportedHitFor`) and ordinary bows. Minimum damage
   and spells are unchanged. PoB applies MaxDamage MORE to each type's own maximum and carries it through conversion,
   which is the same. The wiki says the stat applies to the skill's base and added damage, so it also raises the
   damaging ailments an attack inflicts (PoB builds an ailment's base through the same `calcDamage`). Attacks inflict

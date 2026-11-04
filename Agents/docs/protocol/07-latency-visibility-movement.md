@@ -1,8 +1,7 @@
 # 07 — Latency (0x1b/0x1c and HNC), visibility (wake zone) and movement
 
 State of 2026-10-16: the client's "network" graph stays flat (0–14 ms on localhost since 2026-10-19, §1), the Witch is drawn in Lioneye's
-Watch, and clicking the ground walks her there at normal speed. Evidence:
-[../re/evidence/2026-10-16-witch-visible.jpg](../re/evidence/2026-10-16-witch-visible.jpg).
+Watch, and clicking the ground walks her there at normal speed.
 
 ## 1. Tick and ack: C→S 0x1b, S→C 0x1c
 

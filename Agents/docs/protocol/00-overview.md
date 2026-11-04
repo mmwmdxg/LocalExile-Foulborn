@@ -5,8 +5,6 @@ Client: Path of Exile **3.29.3b**, `Client/Game.exe` (image base `0x140000000`),
 patched client logs in to our servers, lists characters, connects to our instance server, generates Lioneye's Watch,
 creates the local player and shows the in-game HUD.
 
-![first in-game frame](../re/evidence/2026-10-16-first-in-game.jpg)
-
 ## Processes and ports
 
 | Our process | Port | Role | Client side |
