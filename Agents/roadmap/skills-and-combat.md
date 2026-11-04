@@ -44,6 +44,13 @@ The suspend/restore lifecycle is explicit LocalExile policy; see protocol/11-ski
 
 ### The player's real stats
 
+- **Chieftain ascendancy mechanics:** the 37 nodes whose stats the code does not read include the
+  strength-conversion node (Ngamahu's jewel-radius `display_passives_in_large_radius_of_non_unique_jewels_grant_additional_strength`),
+  Tasalio's fire-resistance modifiers applying to the other elements and `unaffected_by_ignite`, Valako's maximum-fire-resistance
+  equivalents, Hinekora's on-kill explosion, Tukohama's body-armour supports and Tawhoa's granted skill.
+  Start: decide each node's rule from the client's own stat consumers before wiring them into the shared stat aggregation.
+  Done when: a Chieftain character's panel and combat agree with the node's stated effect, verified natively.
+
 Track the exact issue #75 target in the [357-stat ledger](../docs/dev/issue75-stat-ledger.md). Partial audit
 records retain their unresolved scope; pending records need individual tracing. No current-branch completion
 certificate follows from a historical native run or a matching source name. The inventory rejects membership drift.
