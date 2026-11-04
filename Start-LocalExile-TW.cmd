@@ -22,6 +22,14 @@ set "TMPDIR=%TEMP%"
 rem PoeChinese3 maps the French language entry to Traditional Chinese.
 set "Game_CLIENT_LANGUAGE=fr"
 
+rem The client keeps its window and network mode only in memory, so write them before every start: windowed, 2560x1440
+rem and Predictive (the only network mode this server serves). Change the numbers here, or run
+rem scripts\dev\client-settings.ps1 -Width/-Height/-Fullscreen yourself.
+if exist "%CD%\scripts\dev\client-settings.ps1" (
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\dev\client-settings.ps1" -Width 2560 -Height 1440 -NetworkMode predictive
+    if errorlevel 1 echo WARNING: could not write the client settings; the game will use its own defaults.
+)
+
 echo Starting LocalExile with Traditional Chinese...
 echo Do not run a second launcher while this one is starting.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\dev\live.ps1"
