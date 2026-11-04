@@ -185,6 +185,12 @@ sealed class NpcCatalog
     /// <summary>The NPCTalk row an NPC's option index (C→S 0x82) stands for.</summary>
     public Talk? TalkOf(Npc npc, int index) => _talk.GetValueOrDefault((TalkSource(npc).Row, index));
 
+    /// <summary>Every NPCTalk row the catalog read: commands that publish dialogue read state need all of them.</summary>
+    public IReadOnlyCollection<Talk> AllTalks => _talk.Values;
+
+    /// <summary>The catalog of the game's data folder, for callers that are not a connection (dev commands).</summary>
+    public static readonly Lazy<NpcCatalog> Default = new(() => Load());
+
     /// <summary>Every NPCTalk row of the NPC (its talk source's), by option index.</summary>
     public IEnumerable<Talk> TalksOf(Npc npc) => _talk.Values.Where(t => t.Npc == TalkSource(npc).Row).OrderBy(t => t.Index);
 

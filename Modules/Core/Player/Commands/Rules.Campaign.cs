@@ -45,6 +45,16 @@ static partial class CommandsRules
                 (held.Count > 0 ? $", quest item(s) held: {string.Join(", ", held)}." : "."));
         })
 
+        .Add("quest_heard_all", "/quest_heard_all (dev: mark every NPC dialogue row heard, which is what the client's quest markers read)", async args =>
+        {
+            var catalog = NpcCatalog.Default.Value;
+            var flags = catalog.AllTalks.SelectMany(t => t.HeardFlags).Distinct().ToList();
+            int before = conn.QuestFlagsSnapshot().Count;
+            await SetQuestFlags(remote, stream, ciphers, conn, flags);
+            int added = conn.QuestFlagsSnapshot().Count - before;
+            await conn.Commands!.Reply($"Marked {catalog.AllTalks.Count} NPC dialogue row(s) heard: {added} of {flags.Count} flag(s) added.");
+        })
+
         .Add("quest_complete_all", "/quest_complete_all (dev: complete every act's quests by their completion flags and unlock every waypoint, for a campaign skipped with commands)", async args =>
         {
             var states = QuestStates.Default.Value;
