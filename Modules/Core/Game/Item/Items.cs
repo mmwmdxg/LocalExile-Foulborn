@@ -975,6 +975,12 @@ static partial class Game
             CurrencyEffects.FoulbornAugmentation => CurrencyEffects.Augmentation(target, RollsFor(conn), random),
             CurrencyEffects.FoulbornRegal => CurrencyEffects.Regal(target, RollsFor(conn), random),
             CurrencyEffects.FoulbornExalted => CurrencyEffects.Exalted(target, RollsFor(conn), random),
+            CurrencyEffects.TaintedChromaticOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } taintedChromaticType
+                ? CurrencyEffects.TaintedChromatic(target, ItemsFor(conn).Requirements(taintedChromaticType), random) : null,
+            CurrencyEffects.TaintedFusingOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } taintedFusingType
+                ? CurrencyEffects.TaintedFusing(target, taintedFusingType, random) : null,
+            CurrencyEffects.TaintedJewellersOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } taintedJewellerType
+                ? CurrencyEffects.TaintedJewellers(target, taintedJewellerType, random) : null,
             CurrencyEffects.TaintedChaosOrb => CurrencyEffects.TaintedChaos(target, RollsFor(conn), random),
             CurrencyEffects.TaintedExaltedOrb => CurrencyEffects.TaintedExalted(target, RollsFor(conn), random),
             CurrencyEffects.OrbOfAnnulment => CurrencyEffects.Annulment(target, RollsFor(conn), random),

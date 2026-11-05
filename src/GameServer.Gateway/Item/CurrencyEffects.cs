@@ -32,6 +32,19 @@ static class CurrencyEffects
     /// on an already corrupted rare item.</summary>
     public const string TaintedExaltedOrb = "Metadata/Items/Currency/CurrencyHellscapeAddModToRare";
 
+    public const string TaintedChromaticOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollSocketColours";
+    public const string TaintedFusingOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollSocketLinks";
+    public const string TaintedJewellersOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollSocketNumbers";
+
+    public static Item? TaintedChromatic(Item item, (int Str, int Dex, int Int) requirements, Random random) =>
+        item.Corrupted ? Chromatic(item, requirements, random, allowCorrupted: true) : null;
+
+    public static Item? TaintedFusing(Item item, ItemCatalog.BaseType type, Random random) =>
+        item.Corrupted ? Fusing(item, type, random, allowCorrupted: true) : null;
+
+    public static Item? TaintedJewellers(Item item, ItemCatalog.BaseType type, Random random) =>
+        item.Corrupted ? Jewellers(item, type, random, allowCorrupted: true) : null;
+
     public static Item? TaintedChaos(Item item, ItemRolls rolls, Random random) =>
         item.Corrupted ? rolls.Chaos(item, random, allowCorrupted: true) : null;
 
@@ -360,10 +373,10 @@ static class CurrencyEffects
     public static Item? Chaos(Item item, ItemRolls rolls, Random random) => rolls.Chaos(item, random);
 
     /// <summary>Change only links; socket colours, gems and all other properties stay intact.</summary>
-    public static Item? Fusing(Item item, ItemCatalog.BaseType type, Random random)
+    public static Item? Fusing(Item item, ItemCatalog.BaseType type, Random random, bool allowCorrupted = false)
     {
         int count = item.Sockets.Count;
-        if (count < 2 || count > 6 || count > SocketCapacity(item, type)) return null;
+        if ((item.Corrupted && !allowCorrupted) || count < 2 || count > 6 || count > SocketCapacity(item, type)) return null;
         IReadOnlyList<byte> old = item.Links ?? [.. Enumerable.Repeat((byte)1, count)];
         // Small fully linked items can be unlinked; protect completed five- and six-socket items.
         if (count >= 5 && old.Count == 1 && old[0] == count) return null;
@@ -412,10 +425,11 @@ static class CurrencyEffects
 
     /// <summary>Reroll the socket count and link groups. Refused targets spend no currency. 3.29: only the sockets the
     /// reroll adds are white; sockets that stay keep their colours (13-items.md, "Socket colours (3.29)").</summary>
-    public static Item? Jewellers(Item item, ItemCatalog.BaseType type, Random random)
+    public static Item? Jewellers(Item item, ItemCatalog.BaseType type, Random random, bool allowCorrupted = false)
     {
         int max = MaximumSockets(item, type);
-        if (max == 0 || item.Sockets.Count >= SocketCapacity(item, type) || item.Sockets.Any(s => s.Gem is not null)) return null;
+        if ((item.Corrupted && !allowCorrupted) || max == 0 || item.Sockets.Count >= SocketCapacity(item, type) ||
+            item.Sockets.Any(s => s.Gem is not null)) return null;
         (int Count, int Weight)[] choices = [(1, 50), (2, 120), (3, 100), (4, 30), (6, 1)];
         var allowed = choices.Where(c => c.Count <= max && c.Count != item.Sockets.Count).ToArray();
         if (allowed.Length == 0) return null;
@@ -442,9 +456,9 @@ static class CurrencyEffects
     /// Chromatic Orb (3.29): one socket is forced non-white, the rest roll normally (white, or a colour at the item's
     /// chance, which the item's quality raises). Gems and links stay.
     /// </summary>
-    public static Item? Chromatic(Item item, (int Str, int Dex, int Int) requirements, Random random)
+    public static Item? Chromatic(Item item, (int Str, int Dex, int Int) requirements, Random random, bool allowCorrupted = false)
     {
-        if (item.Sockets.Count == 0) return null;
+        if ((item.Corrupted && !allowCorrupted) || item.Sockets.Count == 0) return null;
         int forced = random.Next(item.Sockets.Count);
         var sockets = item.Sockets.Select((socket, i) => socket with
         {
