@@ -587,6 +587,24 @@ static partial class Game
             conn.PlayerLife + (long)(conn.PlayerMaxLife - conn.PlayerLife) * pct / 100);
     }
 
+    // The monster affixes that curse on hit (the common set); each is a chance in percent, and a level-only row always
+    // applies. True when the hit put a curse on the player.
+    static readonly string[] CurseOnHitChance =
+        ["curse_on_hit_%_vulnerability", "curse_on_hit_%_enfeeble", "curse_on_hit_%_temporal_chains",
+         "curse_on_hit_%_flammability", "curse_on_hit_%_frostbite", "curse_on_hit_%_conductivity", "curse_on_hit_%_despair"];
+    static readonly string[] CurseOnHitGuaranteed =
+        ["curse_on_hit_level_vulnerability", "curse_on_hit_level_enfeeble", "curse_on_hit_level_temporal_chains",
+         "curse_on_hit_level_flammability", "curse_on_hit_level_frostbite", "curse_on_hit_level_conductivity"];
+
+    static bool CurseOnHit(SpawnedMonster m, double now)
+    {
+        foreach (string name in CurseOnHitGuaranteed)
+            if (m.Mods.Effects[name] > 0) return true;
+        foreach (string name in CurseOnHitChance)
+            if (m.Mods.Effects[name] is > 0 and var chance && Random.Shared.Next(100) < chance) return true;
+        return false;
+    }
+
     internal static async Task MonsterSwing(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn, uint id,
         SpawnedMonster m, int action)
     {
@@ -756,6 +774,10 @@ static partial class Game
         ApplyPlayerAilmentsLocked(conn, baseHit, ailmentTaken.Select((_, r) =>
             new(FortificationDamageTaken(conn, (int)r.Min), FortificationDamageTaken(conn, (int)r.Max))),
             monsterCritical, blocked, now, stats, source: id);
+        // A monster's curse-on-hit affix puts the cursed state on the player for a few seconds, which the while_cursed
+        // modifiers read (the curse's own effect is not modelled yet).
+        if (!blocked && CurseOnHit(m, now))
+            SetCursed(conn, now + 5);
         conn.RecentEnemyHits.Record(now);
         ChargesWhenHit(conn, blocked);
         // Brine Bound: a hit that lands, blocked too (blocking keeps the defender's when-hit effects, wiki
