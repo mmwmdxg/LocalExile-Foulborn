@@ -879,8 +879,7 @@ static partial class Game
             DamageType.Lightning => CurseKind.Conductivity,
             _ => CurseKind.None,
         };
-        int elementalLevel = elemental == CurseKind.None ? 0 : CurseLevelAt(conn, now, elemental);
-        int cursePenalty = elementalLevel > 0 ? CurseValue(elementalLevel, 20, 1, 40) : 0;
+        int cursePenalty = elemental == CurseKind.None ? 0 : CursePoints(conn, now, elemental, 20, 1, 40);
         return type == DamageType.Physical ? modifier : modifier + ResistancePenalty(conn) - cursePenalty;
     }
 

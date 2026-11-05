@@ -46,6 +46,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Dev | `/curse [seconds] [kind]` sets any of the six curse kinds (default Vulnerability) for testing; no argument clears all. | `CommandsFeature` |
 | Skills | Enfeeble takes 10% off the damage the player deals (applied once at the final hit application, so every source is covered). | `Combat.ApplyMonsterHitLocked` |
 | Skills | Curse effects scale with the curse level (level affixes carry it, chance affixes use the monster's level): +1 point per level, capped at the level-20 value. | `CurseState.CurseValue`, `Monsters.CurseOnHit` |
+| Skills | `curse_effect_on_self_+%` scales every curse's headline effect through `CursePoints`. | `CurseState.CursePoints` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

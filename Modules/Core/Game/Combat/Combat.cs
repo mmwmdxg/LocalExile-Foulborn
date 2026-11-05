@@ -1210,8 +1210,8 @@ static partial class Game
     {
         if (m.Dead || m.Life == 0) return null;
         // Enfeeble (a monster's curse on the player): less damage dealt while it lasts, scaled by its level.
-        if (CurseLevelAt(conn, conn.Clock.Elapsed.TotalSeconds, CurseKind.Enfeeble) is > 0 and var enfeebleLevel)
-            damage = (int)Math.Ceiling(damage * (1 - CurseValue(enfeebleLevel, 10, 1, 30) / 100.0));
+        if (CursePoints(conn, conn.Clock.Elapsed.TotalSeconds, CurseKind.Enfeeble, 10, 1, 30) is > 0 and var enfeeblePct)
+            damage = (int)Math.Ceiling(damage * (1 - enfeeblePct / 100.0));
         (m.Life, bool starts) = TakeOwnerDamageLocked(conn, m, damage, rampageSource, player);
         if (allyAt is null) conn.LastEnemyHitAt = m.PlayerHitAt = ProjectileWorldTime(conn);
         if (m.Life == 0) { m.Aggro = false; m.Dead = true; CollectVaalSoulAtDeathLocked(conn, m); }

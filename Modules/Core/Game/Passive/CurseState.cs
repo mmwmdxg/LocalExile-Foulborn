@@ -42,6 +42,17 @@ static partial class Game
         return cap > 0 ? Math.Min(value, cap) : value;
     }
 
+    /// <summary>The headline value with curse_effect_on_self_+% applied (a curse on the player being stronger or
+    /// weaker); 0 when the curse is not on the player.</summary>
+    internal static int CursePoints(ClientState conn, double now, CurseKind kind, int baseValue, int perLevel = 1, int cap = 0)
+    {
+        int level = CurseLevelAt(conn, now, kind);
+        if (level <= 0) return 0;
+        int value = CurseValue(level, baseValue, perLevel, cap);
+        int effect = Stats.Key("curse_effect_on_self_+%") is uint key && conn.PlayerStats.TryGetValue(key, out int pct) ? pct : 0;
+        return (int)Math.Round(value * Math.Max(0, 100 + effect) / 100.0);
+    }
+
     /// <summary>Add a curse (or refresh the same kind), respecting the allowed number of curses; the oldest goes when
     /// the cap is exceeded.</summary>
     internal static void SetCursed(ClientState conn, double until, CurseKind kind = CurseKind.None, int level = 1)
