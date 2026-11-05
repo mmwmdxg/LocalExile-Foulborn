@@ -841,6 +841,10 @@ static partial class Game
     // The player's final resistance for one damage type: the passive/gear modifier plus the Kitava quest penalty.
     internal static int Resistance(ClientState conn, DamageType type)
     {
+        // Doryani's Prototype: your lightning resistance does not apply to lightning damage taken (it neither helps
+        // nor hurts), so the hit is resisted as if it were zero.
+        if (type == DamageType.Lightning && Stats.Key("lightning_resistance_does_not_apply_to_lighting_damage") is uint bypassKey
+            && conn.PlayerStats.GetValueOrDefault(bypassKey) != 0) return 0;
         int modifier = type switch
         {
             DamageType.Fire => conn.Pools.FireResistance,
