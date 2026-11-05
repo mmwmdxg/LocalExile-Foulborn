@@ -329,6 +329,12 @@ static class FlaskGrounds
             lock (_lock) return [.. _profane.Keys];
         }
 
+        /// <summary>Whether the player is on consecrated ground now (the buff this state placed).</summary>
+        public bool OnConsecrated
+        {
+            get { lock (_lock) return _consecrated is not null; }
+        }
+
         /// <summary>Marks the player on consecrated ground or not: the buff id to add or to remove, or null.</summary>
         public (ushort Buff, bool Added)? SetConsecrated(bool on, Func<ushort> nextBuff)
         {
