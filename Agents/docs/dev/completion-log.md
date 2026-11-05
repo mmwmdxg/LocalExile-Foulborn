@@ -23,6 +23,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Skills | `always_ignite` now forces an ignite on any fire-damage hit (the chance roll is skipped). | `MonsterIgnites.IgniteFromHit` |
 | Items | `chaos_damage_does_not_bypass_energy_shield` (Shavronne's Wrappings and kin) lets the shield absorb chaos hits. | `Antiquarian.DamagePlayerHit` |
 | Skills | `always_shock` and `always_freeze` skip the chance roll on a qualifying hit (the Inflict path was already wired). | `MonsterElementalAilments.Inflict` |
+| Skills | `base_cannot_be_frozen/chilled/ignited/shocked` now count as ailment immunity on the player (the plain `cannot_be_*` forms already did). | `PlayerElementalAilments.Immune` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

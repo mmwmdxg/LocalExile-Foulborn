@@ -46,8 +46,11 @@ sealed class PlayerElementalAilments
         Math.Max(0, 1 + ((unaffectedByShock ? 0 : Magnitude(Kind.Shock, now)) + increasedPct) / 100);
 
     static string Name(Kind kind) => kind.ToString().ToLowerInvariant();
-    static bool Immune(Kind kind, Func<string, int> get) => get($"immune_to_{Name(kind)}") != 0
-        || get($"cannot_be_{kind switch { Kind.Ignite => "ignited", Kind.Chill => "chilled", Kind.Freeze => "frozen", _ => "shocked" }}") != 0;
+    static bool Immune(Kind kind, Func<string, int> get)
+    {
+        string past = kind switch { Kind.Ignite => "ignited", Kind.Chill => "chilled", Kind.Freeze => "frozen", _ => "shocked" };
+        return get($"immune_to_{Name(kind)}") != 0 || get($"cannot_be_{past}") != 0 || get($"base_cannot_be_{past}") != 0;
+    }
 
     public void Reconcile(Func<string, int> get)
     {
