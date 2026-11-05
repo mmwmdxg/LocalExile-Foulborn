@@ -1327,9 +1327,9 @@ static class CommandsFeature
             {
                 double now = conn.Clock.Elapsed.TotalSeconds;
                 var here = conn.Walk.Position(now);
-                foreach (var (monsterId, m) in conn.Monsters)
+                foreach (var (_, m) in conn.Monsters)
                     if (m.Hostile && !m.Dead && m.Life > 0 && Dist(m.Walk.Position(now), here) <= 60
-                        && SetMonsterCurse(conn, monsterId, m, kind, seconds))
+                        && SetMonsterCurse(conn, m, kind, seconds))
                         count++;
             }
             await conn.Commands!.Reply($"Cursed {count} nearby monster(s) with {kind} for {seconds} s.");

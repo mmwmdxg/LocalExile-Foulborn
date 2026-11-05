@@ -59,7 +59,11 @@ static partial class Game
     // A hostile monster the player killed (MonsterKilled): its "on kill" gains.
     internal static void ChargesOnKill(ClientState conn, SpawnedMonster m)
     {
-        if (conn.PlayerLife > 0) ChargesOf(conn).Enqueue(new ChargeEvent.Kill(m.Rarity));
+        if (conn.PlayerLife <= 0) return;
+        ChargesOf(conn).Enqueue(new ChargeEvent.Kill(m.Rarity));
+        // Warlord's Mark: killing the marked enemy grants an Endurance Charge.
+        if (MonsterHasCurse(conn, m, conn.Clock.Elapsed.TotalSeconds, CurseKind.WarlordsMark))
+            ChargesOf(conn).Enqueue(new ChargeEvent.Grant(ChargeType.Endurance, 1, "Warlord's Mark"));
     }
 
     // A monster's hit on the player that landed (when hit) or was blocked (on block).

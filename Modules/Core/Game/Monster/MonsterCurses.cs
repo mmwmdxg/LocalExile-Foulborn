@@ -2,8 +2,8 @@ using System.Runtime.CompilerServices;
 
 static partial class Game
 {
-    // Curses on monsters (a player's curse skill, or the dev command). Each monster keeps its own list; the damage
-    // taken they add is folded into SpawnedMonster.TakenFromPlayer where that is rebuilt each tick.
+    // Curses on monsters (a player's curse skill or mark, or the dev command). Keyed by the monster object, so callers
+    // do not need its id; the damage taken they add is folded into SpawnedMonster.TakenFromPlayer where that is rebuilt.
     sealed class MonsterCurseEntry
     {
         public CurseKind Kind;
@@ -11,9 +11,12 @@ static partial class Game
         public int Level;
     }
 
-    static readonly ConditionalWeakTable<ClientState, Dictionary<uint, List<MonsterCurseEntry>>> MonsterCurses = new();
+    static readonly ConditionalWeakTable<SpawnedMonster, List<MonsterCurseEntry>> MonsterCurses = new();
 
-    // The active skill's effect id when it is a curse skill.
+    internal static bool MonsterHexproof(SpawnedMonster m) =>
+        m.Mods.Effects["base_immune_to_curses"] != 0 || m.Mods.Effects["curse_immune"] != 0;
+
+    // The active skill's effect id when it is a curse or mark skill.
     internal static CurseKind CurseSkillKind(string? effect) => effect switch
     {
         "vulnerability" => CurseKind.Vulnerability,
@@ -29,35 +32,33 @@ static partial class Game
         _ => CurseKind.None,
     };
 
-    internal static bool MonsterHexproof(SpawnedMonster m) =>
-        m.Mods.Effects["base_immune_to_curses"] != 0 || m.Mods.Effects["curse_immune"] != 0;
-
     /// <summary>Put a curse on one monster (hexproof monsters refuse it). Returns false when refused.</summary>
-    internal static bool SetMonsterCurse(ClientState conn, uint id, SpawnedMonster m, CurseKind kind, double seconds, int level = 1)
+    internal static bool SetMonsterCurse(ClientState conn, SpawnedMonster m, CurseKind kind, double seconds, int level = 1)
     {
         if (kind == CurseKind.None || MonsterHexproof(m)) return false;
-        var map = MonsterCurses.GetOrCreateValue(conn);
-        if (!map.TryGetValue(id, out var list)) map[id] = list = [];
+        var list = MonsterCurses.GetOrCreateValue(m);
         list.RemoveAll(e => e.Kind == kind);
         list.Add(new MonsterCurseEntry { Kind = kind, Until = conn.Clock.Elapsed.TotalSeconds + seconds, Level = level });
         return true;
     }
 
-    internal static void ClearMonsterCurses(ClientState conn, uint id) =>
-        MonsterCurses.GetOrCreateValue(conn).Remove(id);
-
-    /// <summary>What the monster's curses add to the damage it takes: Vulnerability to every type, the elemental
-    /// curses to elemental damage.</summary>
-    internal static (int All, int Elemental) MonsterCurseDamageTaken(ClientState conn, uint id, double now)
+    internal static bool MonsterHasCurse(ClientState conn, SpawnedMonster m, double now, CurseKind kind)
     {
-        if (!MonsterCurses.TryGetValue(conn, out var map) || !map.TryGetValue(id, out var list)) return (0, 0);
+        if (!MonsterCurses.TryGetValue(m, out var list)) return false;
+        list.RemoveAll(e => e.Until <= now);
+        return list.Any(e => e.Kind == kind);
+    }
+
+    /// <summary>What the monster's curses add to the damage it takes: Vulnerability and Assassin's Mark to every type,
+    /// the elemental curses to elemental damage.</summary>
+    internal static (int All, int Elemental) MonsterCurseDamageTaken(ClientState conn, SpawnedMonster m, double now)
+    {
+        if (!MonsterCurses.TryGetValue(m, out var list)) return (0, 0);
         list.RemoveAll(e => e.Until <= now);
         int all = 0, elemental = 0;
         foreach (var entry in list)
         {
             int value = CurseValue(entry.Level, 20, 1, 40);
-            // A mark's headline value is its extra critical-strike chance against the marked enemy, which the simple
-            // damage-taken model reads as more damage taken.
             if (entry.Kind is CurseKind.Vulnerability or CurseKind.AssassinsMark) all += value;
             else if (entry.Kind is CurseKind.Flammability or CurseKind.Frostbite or CurseKind.Conductivity) elemental += value;
         }

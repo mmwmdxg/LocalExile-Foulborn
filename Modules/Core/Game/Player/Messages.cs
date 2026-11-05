@@ -69,10 +69,10 @@ static partial class Game
                     {
                         var curseNow = conn.Clock.Elapsed.TotalSeconds;
                         var curseHere = conn.Walk.Position(curseNow);
-                        foreach (var (monsterId, monster) in conn.Monsters)
+                        foreach (var (_, monster) in conn.Monsters)
                             if (monster.Hostile && !monster.Dead && monster.Life > 0
                                 && Dist(monster.Walk.Position(curseNow), curseHere) <= 60)
-                                SetMonsterCurse(conn, monsterId, monster, curseKind, 8);
+                                SetMonsterCurse(conn, monster, curseKind, 8);
                     }
                 }
                 // The ordinary ranged attack fires at the ground point; it is neither a melee hit nor a Move action.
