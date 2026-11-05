@@ -51,6 +51,8 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.7 | `base_cannot_be_*` item, get hit by that ailment | No ailment applied |
 | 3.8 | Movement/action speed floor item under chill | Speed stays at base |
 | 3.9 | Chaos damage with `chaos_damage_does_not_bypass_energy_shield` | Energy shield absorbs it |
+| 3.10 | Hold max endurance charges with the Onslaught grant | Onslaught icon appears, action speed +20% |
+| 3.11 | Max frenzy charges + `gain_onslaught_on_hit_chance_...`, hit | Onslaught icon appears on the roll for 4 s |
 
 ## Reporting
 
