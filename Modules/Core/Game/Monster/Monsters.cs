@@ -763,7 +763,7 @@ static partial class Game
             damage += value;
         }
         // Vulnerability (a monster's curse-on-hit): 20% more damage taken while it lasts.
-        if (CurseAt(conn, now) == CurseKind.Vulnerability)
+        if (HasCurse(conn, now, CurseKind.Vulnerability))
         {
             damage = (int)Math.Ceiling(damage * 1.2);
             chaosDamage = (int)Math.Ceiling(chaosDamage * 1.2);

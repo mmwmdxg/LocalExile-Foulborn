@@ -1308,7 +1308,8 @@ static class CommandsFeature
             double now = conn.Clock.Elapsed.TotalSeconds;
             int seconds = 0;
             bool on = args.Length > 0 && int.TryParse(args[0], out seconds) && seconds > 0;
-            SetCursed(conn, on ? now + seconds : 0);
+            if (on) SetCursed(conn, now + seconds, CurseKind.Vulnerability);
+            else ClearCurses(conn);
             lock (conn.Monsters) conn.Pools = PoolsFor(conn, conn.Pools.Level);
             await SendCharacterStats(remote, stream, ciphers, conn, $"curse {(on ? "on" : "off")}");
             await conn.Commands!.Reply(on ? $"Cursed for {seconds} s." : "Curse cleared.");
