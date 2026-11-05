@@ -108,6 +108,8 @@ static partial class Game
             if (!flagged) flagged = CharacterStatSources(conn).Stats.GetValueOrDefault(key) != 0;
             if (flagged) factor = Math.Max(factor, 1);
         }
+        // Onslaught: +20% action speed while the buff is up.
+        if (OnslaughtActive(conn, conn.Clock.Elapsed.TotalSeconds)) factor *= 1.2;
         return factor;
     }
 }
