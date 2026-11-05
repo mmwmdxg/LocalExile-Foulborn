@@ -553,3 +553,15 @@ remaining native checks are recorded in [the port record](../docs/dev/issue75-po
   (or in the walk-map recorder), and collision with doodads and objects that have their own colliders.
 - **Done when:** Fireball and bow arrows look like the real ones in every area: at the caster's torso on terrain and
   platforms, stopping at walls and objects.
+
+### Remaining from the 2026-11-05 item/aura/curse pass
+
+- Melee weapon range has no consumer: `WeaponTypes.RangeMax` (0.01 m units) exists, but the server accepts every
+  player attack without a reach test, so `melee_weapon_range_+_while_at_maximum_frenzy_charges` cannot take effect.
+  A reach test must also stay safe for ranged skills, whose range is not modelled either; calibrate against the
+  client's own target validity before enforcing anything.
+- Curses carry their headline effect only: Vulnerability (20% more damage taken) and Temporal Chains (20% less action
+  speed) are fixed values, Enfeeble only sets the state, and the elemental curses are not wired. Per-level scaling,
+  curse effect modifiers, hexproof and curse immunity remain open.
+- Onslaught, Mind over Matter, Vaal Pact and Rampage grants use fixed shares (20%, 30%, 100%) rather than the stat's
+  own value where the stat carries one; check each against the real client and the corresponding stat text.
