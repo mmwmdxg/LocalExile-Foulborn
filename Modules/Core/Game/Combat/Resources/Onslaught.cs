@@ -1,11 +1,20 @@
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using GameServer.Core.Protocol.Instance;
+using GameServer.Core.Protocol.Login;
 
 static partial class Game
 {
-    // Onslaught: the client icon is BuffDefinitions 215; the server applies the +20% action speed here. Only the
-    // "while at maximum endurance charges" grant is modelled so far.
-    sealed class OnslaughtState { public double Until; }
+    // Onslaught: BuffDefinitions 215 is the client icon; the server applies the +20% action speed and publishes the
+    // buff. Only the "while at maximum endurance charges" grant is modelled so far.
+    sealed class OnslaughtState
+    {
+        public double Until;
+        public ushort Buff;
+        public bool Shown;
+    }
 
+    const ushort OnslaughtBuffRow = 215;
     const double KeepSeconds = 4;
 
     static readonly ConditionalWeakTable<ClientState, OnslaughtState> Onslaughts = new();
@@ -27,5 +36,25 @@ static partial class Game
         }
         var state = Onslaughts.GetOrCreateValue(conn);
         state.Until = granted ? now + KeepSeconds : 0;
+    }
+
+    /// <summary>Publish or withdraw the Onslaught icon on the player (player tick).</summary>
+    internal static async Task SendOnslaught(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn)
+    {
+        bool active = OnslaughtActive(conn, conn.Clock.Elapsed.TotalSeconds);
+        var state = Onslaughts.GetOrCreateValue(conn);
+        if (state.Shown == active) return;
+        state.Shown = active;
+        if (active)
+        {
+            state.Buff = conn.NextBuff++;
+            await Send(remote, stream, ciphers, InstanceEntities.AddBuff(PlayerId, state.Buff, OnslaughtBuffRow, PlayerId),
+                "0x01c1 player buff: Onslaught");
+        }
+        else
+        {
+            await Send(remote, stream, ciphers, InstanceEntities.RemoveBuff(PlayerId, state.Buff),
+                "0x01c2 player buff: Onslaught");
+        }
     }
 }

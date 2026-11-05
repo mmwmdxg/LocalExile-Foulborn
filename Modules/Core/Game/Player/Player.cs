@@ -468,6 +468,7 @@ static partial class Game
             await SendAntiquarian(remote, stream, ciphers, conn);
             await SendTotems(remote, stream, ciphers, conn);
             await SendSpiritChieftain(remote, stream, ciphers, conn);
+            await SendOnslaught(remote, stream, ciphers, conn);
             await SendRecentEnemyHits(remote, stream, ciphers, conn);
             if (conn.FlaskGrounds.StartTickerIfConfigured()) _ = RunFlaskGrounds(remote, stream, ciphers, conn);
             await SendAttackerSlows(remote, stream, ciphers, conn);
