@@ -18,6 +18,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | `/item_copy [mirrored]` duplicates the held item. | `CommandsFeature.cs` |
 | Items | Replica Headhunter steals a magic monster's affixes at its 20% per-kill chance (Headhunter's rare path unchanged). | `UniqueBeltsFeature.StealMonsterMods`, `StolenMods` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
+| Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 
 ## Parked for the single live-verification pass
 

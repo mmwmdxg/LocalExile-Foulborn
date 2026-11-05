@@ -57,10 +57,10 @@ sealed class ItemRolls(ItemCatalog catalog, string folder = "data", SystemSettin
 
     /// <summary>The item and its base accept affix changes: the item is not corrupted or mirrored, has Mods, and its
     /// base is known, serializable, has Mods and is not unmodifiable.</summary>
-    bool TryModifiable(Item item, out ItemCatalog.BaseType type)
+    bool TryModifiable(Item item, out ItemCatalog.BaseType type, bool allowCorrupted = false)
     {
         type = null!;
-        if (item.Corrupted || item.Mirrored || !item.Components.Contains("Mods") ||
+        if ((item.Corrupted && !allowCorrupted) || item.Mirrored || !item.Components.Contains("Mods") ||
             catalog.ByHash(item.TypeHash) is not { } found || !found.Supported || !found.Components.Contains("Mods") ||
             found.Unmodifiable) return false;
         type = found;
@@ -133,9 +133,9 @@ sealed class ItemRolls(ItemCatalog catalog, string folder = "data", SystemSettin
 
     /// <summary>Exalted Orb's validated rare addition: the affixes and name stay and one more weighted affix is
     /// added within the base's rare limits. Flasks are magic-only and cannot be rare.</summary>
-    public Item? Exalted(Item item, Random random)
+    public Item? Exalted(Item item, Random random, bool allowCorrupted = false)
     {
-        if (item.Rarity != ItemRarity.Rare || item.Components.Contains("Flask") || !TryModifiable(item, out var type))
+        if (item.Rarity != ItemRarity.Rare || item.Components.Contains("Flask") || !TryModifiable(item, out var type, allowCorrupted))
             return null;
         return AddAffix(item, MaxAffixesPerSide(type), random);
     }
@@ -143,9 +143,9 @@ sealed class ItemRolls(ItemCatalog catalog, string folder = "data", SystemSettin
     /// <summary>Chaos Orb's validated rare reroll: every unprotected explicit affix is replaced by 4-6 new weighted
     /// ones, a new rare name is drawn, and metamod-protected affixes stay. Flasks are magic-only and cannot be
     /// rare.</summary>
-    public Item? Chaos(Item item, Random random)
+    public Item? Chaos(Item item, Random random, bool allowCorrupted = false)
     {
-        if (item.Rarity != ItemRarity.Rare || item.Components.Contains("Flask") || !TryModifiable(item, out var type) ||
+        if (item.Rarity != ItemRarity.Rare || item.Components.Contains("Flask") || !TryModifiable(item, out var type, allowCorrupted) ||
             Pool(type, item).Count == 0) return null;
         return Roll(item, ItemRarity.Rare, random, respectMetamods: true) with { Identified = true };
     }

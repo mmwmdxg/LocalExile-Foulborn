@@ -23,6 +23,20 @@ static class CurrencyEffects
     public const string FoulbornAugmentation = "Metadata/Items/Currency/CurrencyMutatedAddModToMagic";
     public const string FoulbornRegal = "Metadata/Items/Currency/CurrencyMutatedUpgradeMagicToRare";
     public const string FoulbornExalted = "Metadata/Items/Currency/CurrencyMutatedAddModToRare";
+
+    /// <summary>Tainted Chaos Orb (`CurrencyHellscapeRerollRare`): the Chaos Orb's rare reroll, only on an already
+    /// corrupted rare item. The ordinary orb refuses corrupted items; this one requires them.</summary>
+    public const string TaintedChaosOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollRare";
+
+    /// <summary>Tainted Exalted Orb (`CurrencyHellscapeAddModToRare`): the Exalted Orb's one-more-affix addition, only
+    /// on an already corrupted rare item.</summary>
+    public const string TaintedExaltedOrb = "Metadata/Items/Currency/CurrencyHellscapeAddModToRare";
+
+    public static Item? TaintedChaos(Item item, ItemRolls rolls, Random random) =>
+        item.Corrupted ? rolls.Chaos(item, random, allowCorrupted: true) : null;
+
+    public static Item? TaintedExalted(Item item, ItemRolls rolls, Random random) =>
+        item.Corrupted ? rolls.Exalted(item, random, allowCorrupted: true) : null;
     public const string OrbOfAnnulment = "Metadata/Items/Currency/CurrencyRemoveMod";
     public const string AncientOrb = "Metadata/Items/Currency/CurrencyRerollUnique";
     public const string LesserEldritchIchor = "Metadata/Items/Currency/CurrencyEldritchIchor1";
