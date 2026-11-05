@@ -36,6 +36,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | `gain_iron_reflexes_while_at_maximum_frenzy_charges` grants Iron Reflexes while frenzy charges are full. | `Progression.PassiveBonus` |
 | Items | `cannot_be_ignited/shocked_while_at_maximum_endurance_charges` count as immunity while endurance charges are full (a get-function wrapper, no new signatures). | `AilmentImmunity.WithEnduranceAilmentImmunity` |
 | Skills | Onslaught: `gain_onslaught_while_at_maximum_endurance_charges` gives +20% action speed while the charges are full, and the player tick publishes/withdraws the icon (BuffDefinitions 215). | `Resources/Onslaught.cs`, `PlayerAilments.PlayerActionFactor`, `Player.RunPlayerTick` |
+| Skills | `gain_onslaught_on_hit_chance_while_at_maximum_frenzy_charges_%` rolls Onslaught (4 s) on a hit while frenzy charges are full. | `Charges.ChargesOnHit` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

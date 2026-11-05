@@ -38,6 +38,13 @@ static partial class Game
         state.Until = granted ? now + KeepSeconds : 0;
     }
 
+    /// <summary>Grant Onslaught for a fixed time (a hit chance source, a kill, and so on).</summary>
+    internal static void GrantOnslaught(ClientState conn, double now, double seconds)
+    {
+        var state = Onslaughts.GetOrCreateValue(conn);
+        state.Until = Math.Max(state.Until, now + seconds);
+    }
+
     /// <summary>Publish or withdraw the Onslaught icon on the player (player tick).</summary>
     internal static async Task SendOnslaught(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn)
     {

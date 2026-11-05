@@ -35,6 +35,19 @@ static partial class Game
         }
         ChargesOf(conn).Enqueue(new ChargeEvent.Hit(critical, spell, melee, m.Rarity, effect >= 0 ? SkillsFor(conn).EffectId(effect) : null,
             skill, Killed: m.Dead || m.Life == 0, Primary: primary));
+        // gain_onslaught_on_hit_chance_while_at_maximum_frenzy_charges_% (a hit-chance Onslaught source).
+        if (skill is not null && skill("gain_onslaught_on_hit_chance_while_at_maximum_frenzy_charges_%") is > 0 and var chance)
+        {
+            bool atMax;
+            var session = ChargesOf(conn);
+            lock (conn.Monsters)
+            {
+                var limits = session.Limits(ChargeType.Frenzy);
+                atMax = limits.Maximum > 0 && session.Effective(ChargeType.Frenzy) >= limits.Maximum;
+            }
+            if (atMax && Random.Shared.Next(100) < chance)
+                GrantOnslaught(conn, conn.Clock.Elapsed.TotalSeconds, 4);
+        }
     }
 
     // The player died (PlayerDied): every gained charge goes now, not at the ticker's next step, which a pause holds back.
