@@ -58,6 +58,22 @@ static partial class Game
         bool chaosBypasses = Get("chaos_damage_does_not_bypass_energy_shield") == 0;
         int lifeDamage = conn.EnergyShield.Damage(nonChaos - nonChaosAbsorbed, false, now)
             + conn.EnergyShield.Damage(Math.Max(0, chaos - (absorbed - nonChaosAbsorbed)), chaosBypasses, now);
+        // Mind over Matter: a share of the life damage is paid from mana instead (the keystone, or the gain-while-at-
+        // maximum-power-charges variant). Insufficient mana falls back to life, as the game does.
+        int manaPct = Math.Clamp(Get("damage_taken_goes_to_mana_%"), 0, 100);
+        if (Get("gain_mind_over_matter_while_at_maximum_power_charges") != 0)
+        {
+            var session = ChargesOf(conn);
+            var limits = session.Limits(ChargeType.Power);
+            if (limits.Maximum > 0 && session.Effective(ChargeType.Power) >= limits.Maximum) manaPct = Math.Max(manaPct, 30);
+        }
+        if (manaPct > 0 && lifeDamage > 0)
+        {
+            int share = (int)((long)lifeDamage * manaPct / 100);
+            int paid = Math.Min(share, (int)conn.PlayerMana);
+            lifeDamage -= paid;
+            conn.PlayerMana = (uint)(conn.PlayerMana - paid);
+        }
         if (!wasBroken && conn.Ward.Broken
             && conn.Antiquarian.GrantAdrenaline(now, Get(AntiquarianEffects.AdrenalineSource)))
         {
