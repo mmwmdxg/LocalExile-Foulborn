@@ -55,6 +55,8 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.11 | Max frenzy charges + `gain_onslaught_on_hit_chance_...`, hit | Onslaught icon appears on the roll for 4 s |
 | 3.12 | Mind over Matter keystone, take a hit | Part of it comes off mana, not life |
 | 3.13 | Mind over Matter only while at max power charges | Mana share only with full power charges |
+| 3.14 | Vaal Pact keystone, leech life | Life refills instantly instead of over time |
+| 3.15 | Vaal Pact only while at max endurance charges | Instant leech only with full endurance charges |
 
 ## Reporting
 

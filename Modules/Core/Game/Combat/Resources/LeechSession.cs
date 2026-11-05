@@ -34,6 +34,9 @@ sealed class LeechSession
         lifeInstant = Math.Clamp(replacement("virtual_life_leech_%_is_instant")
             ?? commonInstant + get("life_leech_%_is_instant")
                 + (double)equippedClaws * get("life_leech_%_is_instant_per_equipped_claw"), 0, 100);
+        // Vaal Pact: life leech is instant (the keystone, or the gain-while-at-maximum-endurance-charges grant when the
+        // caller folds it into keystone_vaal_pact).
+        if (get("keystone_vaal_pact") != 0) lifeInstant = 100;
         manaInstant = Math.Clamp(replacement("virtual_mana_leech_%_is_instant") ?? commonInstant, 0, 100);
         shieldInstant = Math.Clamp(replacement("virtual_energy_shield_leech_%_is_instant") ?? commonInstant, 0, 100);
         // GGG 3.22.1d explicitly preserves Life-instant sources through Ghost Reaver. Keep that source scope:

@@ -36,9 +36,20 @@ static partial class Game
                 + (ActiveOffHand(conn)?.Type?.Class == "Claw" ? 1 : 0);
             LeechOf(conn).Configure(ProjectileWorldTime(conn),
                 LeechLimits.Resolve(get, conn.Pools.Life, conn.Pools.Mana, conn.Pools.EnergyShield, Replacement, onLowLife),
-                get, Replacement, claws);
+                VaalPactGet(conn, get), Replacement, claws);
             TrimLeechLocked(conn);
         }
+    }
+
+    // gain_vaal_pact_while_at_maximum_endurance_charges: while the endurance charges are full the grant reads as
+    // keystone_vaal_pact for the leech configuration. Call under the Monsters lock.
+    static Func<string, int> VaalPactGet(ClientState conn, Func<string, int> get)
+    {
+        if (get("gain_vaal_pact_while_at_maximum_endurance_charges") == 0) return get;
+        var session = ChargesOf(conn);
+        var limits = session.Limits(ChargeType.Endurance);
+        if (limits.Maximum <= 0 || session.Effective(ChargeType.Endurance) < limits.Maximum) return get;
+        return name => name == "keystone_vaal_pact" ? 1 : get(name);
     }
 
     // Pool commits (including instant flasks/block gains) cannot leave ordinary leech alive until the next tick.
