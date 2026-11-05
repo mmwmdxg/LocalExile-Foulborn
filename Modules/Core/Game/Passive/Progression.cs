@@ -565,7 +565,8 @@ static partial class Game
         SuspendRestrictedOwnAuras(conn, new(sources));
         var weapons = WeaponProfileFor(conn);
         var activeWeapon = WeaponProfileFor(conn, activeSet: true);
-        var bonus = PassiveBonus(sources, weapons, snapshot.Attributes, CursedAt(conn, conn.Clock.Elapsed.TotalSeconds));
+        var bonus = PassiveBonus(sources, weapons, snapshot.Attributes,
+            CursedAt(conn, conn.Clock.Elapsed.TotalSeconds), conn.FlaskGrounds.PlayerOnConsecrated);
         int EquipmentInput(string name) => Stats.Key(name) is uint key
             ? conn.PlayerStats.TryGetValue(key, out int value) ? value : sources.GetValueOrDefault(key) : 0;
         var gear = EquippedBaseDefences(conn, EquipmentInput);
@@ -774,7 +775,7 @@ static partial class Game
     // block nodes when a shield is equipped, critical strike chance and multiplier, and reservation efficiency and aura
     // effect.
     internal static CharacterStats.Bonus PassiveBonus(Dictionary<uint, int> stats, WeaponProfile weapons, AttributeModifiers attributes,
-        bool cursed = false)
+        bool cursed = false, bool onConsecrated = false)
     {
         int Get(string name) => Stats.Key(name) is uint k ? stats.GetValueOrDefault(k) : 0;
         int allRes = Get("base_resist_all_elements_%");
@@ -928,6 +929,7 @@ static partial class Game
                 + (cursed ? Get("movement_velocity_+%_while_cursed") : 0),
             BlockChance: Get("additional_block_%") + Get("attack_block_%") + Get("monster_base_block_%")
                 + (cursed ? 0 : Get("additional_block_%_while_not_cursed"))
+                + (onConsecrated ? Get("additional_block_%_while_on_consecrated_ground") : 0)
                 + blockWhileDualOrShield + shieldBlock + staffBlock + dualBlock + bowBlock,
             SpellBlockChance: Get("base_spell_block_%") + Get("additional_spell_block_%")
                 + (cursed ? Get("additional_spell_block_%_while_cursed") : 0) + staffOrShieldSpell
