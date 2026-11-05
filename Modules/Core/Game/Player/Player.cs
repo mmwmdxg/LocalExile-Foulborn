@@ -872,13 +872,15 @@ static partial class Game
         // Elemental curses: the matching resistance is 20% lower while the curse lasts (a fixed stand-in for the
         // curse's level-scaled value).
         double now = conn.Clock.Elapsed.TotalSeconds;
-        int cursePenalty = type switch
+        CurseKind elemental = type switch
         {
-            DamageType.Fire when HasCurse(conn, now, CurseKind.Flammability) => 20,
-            DamageType.Cold when HasCurse(conn, now, CurseKind.Frostbite) => 20,
-            DamageType.Lightning when HasCurse(conn, now, CurseKind.Conductivity) => 20,
-            _ => 0,
+            DamageType.Fire => CurseKind.Flammability,
+            DamageType.Cold => CurseKind.Frostbite,
+            DamageType.Lightning => CurseKind.Conductivity,
+            _ => CurseKind.None,
         };
+        int elementalLevel = elemental == CurseKind.None ? 0 : CurseLevelAt(conn, now, elemental);
+        int cursePenalty = elementalLevel > 0 ? CurseValue(elementalLevel, 20, 1, 40) : 0;
         return type == DamageType.Physical ? modifier : modifier + ResistancePenalty(conn) - cursePenalty;
     }
 

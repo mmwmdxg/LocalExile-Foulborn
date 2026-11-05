@@ -3,13 +3,13 @@ using System.Runtime.CompilerServices;
 static partial class Game
 {
     // The cursed state the while_cursed modifiers read (dev: /curse, or a monster's curse-on-hit affix). A real curse's
-    // full machinery is not modelled; the common kinds carry their headline effect only, and the number of curses that
-    // can stack follows number_of_additional_curses_allowed (base one).
+    // full machinery is not modelled; each kind carries its headline effect, scaled by the curse level (level 1 is the
+    // base value, +1 point per level, capped at the level-20 value).
     internal enum CurseKind { None, Vulnerability, TemporalChains, Enfeeble, Flammability, Frostbite, Conductivity }
 
     sealed class CurseState
     {
-        public readonly List<(CurseKind Kind, double Until)> Active = [];
+        public readonly List<(CurseKind Kind, double Until, int Level)> Active = [];
     }
 
     static readonly ConditionalWeakTable<ClientState, CurseState> Cursed = new();
@@ -25,16 +25,33 @@ static partial class Game
         return state.Active.Any(c => kind is null || c.Kind == kind);
     }
 
+    /// <summary>The active curse's level (0 when it is not on the player).</summary>
+    internal static int CurseLevelAt(ClientState conn, double now, CurseKind kind)
+    {
+        if (!Cursed.TryGetValue(conn, out var state)) return 0;
+        Prune(state, now);
+        int at = state.Active.FindIndex(c => c.Kind == kind);
+        return at >= 0 ? state.Active[at].Level : 0;
+    }
+
+    /// <summary>The level-scaled headline value: base at level 1, +<paramref name="perLevel"/> per level, capped.</summary>
+    internal static int CurseValue(int level, int baseValue, int perLevel = 1, int cap = 0)
+    {
+        if (level <= 0) return 0;
+        int value = baseValue + (Math.Min(level, 20) - 1) * perLevel;
+        return cap > 0 ? Math.Min(value, cap) : value;
+    }
+
     /// <summary>Add a curse (or refresh the same kind), respecting the allowed number of curses; the oldest goes when
     /// the cap is exceeded.</summary>
-    internal static void SetCursed(ClientState conn, double until, CurseKind kind = CurseKind.None)
+    internal static void SetCursed(ClientState conn, double until, CurseKind kind = CurseKind.None, int level = 1)
     {
         var state = Cursed.GetOrCreateValue(conn);
         double now = conn.Clock.Elapsed.TotalSeconds;
         Prune(state, now);
         int at = state.Active.FindIndex(c => c.Kind == kind);
-        if (at >= 0) state.Active[at] = (kind, until);
-        else state.Active.Add((kind, until));
+        if (at >= 0) state.Active[at] = (kind, until, level);
+        else state.Active.Add((kind, until, level));
         int extra = Stats.Key("number_of_additional_curses_allowed") is uint key && conn.PlayerStats.TryGetValue(key, out int value)
             ? Math.Max(0, value) : 0;
         // number_of_additional_curses_allowed_while_at_maximum_power_charges (a third slot at full charges).

@@ -111,7 +111,8 @@ static partial class Game
         // Onslaught: +20% action speed while the buff is up. Temporal Chains: 20% less while cursed with it.
         double now = conn.Clock.Elapsed.TotalSeconds;
         if (OnslaughtActive(conn, now)) factor *= 1.2;
-        if (HasCurse(conn, now, CurseKind.TemporalChains)) factor *= 0.8;
+        if (CurseLevelAt(conn, now, CurseKind.TemporalChains) is > 0 and var tcLevel)
+            factor *= 1 - CurseValue(tcLevel, 20, 1, 40) / 100.0;
         return factor;
     }
 }

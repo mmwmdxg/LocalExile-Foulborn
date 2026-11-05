@@ -596,24 +596,27 @@ static partial class Game
         ["curse_on_hit_level_vulnerability", "curse_on_hit_level_enfeeble", "curse_on_hit_level_temporal_chains",
          "curse_on_hit_level_flammability", "curse_on_hit_level_frostbite", "curse_on_hit_level_conductivity"];
 
-    static CurseKind CurseOnHit(SpawnedMonster m, double now)
+    // Returns the curse and its level: the level affixes carry it, a chance affix uses the monster's own level.
+    static (CurseKind Kind, int Level) CurseOnHit(SpawnedMonster m, double now)
     {
-        static CurseKind Roll(SpawnedMonster monster, string guaranteed, string chance, CurseKind kind)
+        static (CurseKind, int) Roll(SpawnedMonster monster, string guaranteed, string chance, CurseKind kind)
         {
-            if (monster.Mods.Effects[guaranteed] > 0) return kind;
+            int level = monster.Mods.Effects[guaranteed];
+            if (level > 0) return (kind, Math.Max(1, level));
             int chancePct = monster.Mods.Effects[chance];
-            return chancePct > 0 && Random.Shared.Next(100) < chancePct ? kind : CurseKind.None;
+            return chancePct > 0 && Random.Shared.Next(100) < chancePct
+                ? (kind, Math.Max(1, (int)monster.Level)) : (CurseKind.None, 0);
         }
-        CurseKind result = Roll(m, "curse_on_hit_level_vulnerability", "curse_on_hit_%_vulnerability", CurseKind.Vulnerability);
-        if (result != CurseKind.None) return result;
+        var result = Roll(m, "curse_on_hit_level_vulnerability", "curse_on_hit_%_vulnerability", CurseKind.Vulnerability);
+        if (result.Item1 != CurseKind.None) return result;
         result = Roll(m, "curse_on_hit_level_temporal_chains", "curse_on_hit_%_temporal_chains", CurseKind.TemporalChains);
-        if (result != CurseKind.None) return result;
-        CurseKind roll = Roll(m, "curse_on_hit_level_enfeeble", "curse_on_hit_%_enfeeble", CurseKind.Enfeeble);
-        if (roll != CurseKind.None) return roll;
-        roll = Roll(m, "curse_on_hit_level_flammability", "curse_on_hit_%_flammability", CurseKind.Flammability);
-        if (roll != CurseKind.None) return roll;
-        roll = Roll(m, "curse_on_hit_level_frostbite", "curse_on_hit_%_frostbite", CurseKind.Frostbite);
-        if (roll != CurseKind.None) return roll;
+        if (result.Item1 != CurseKind.None) return result;
+        result = Roll(m, "curse_on_hit_level_enfeeble", "curse_on_hit_%_enfeeble", CurseKind.Enfeeble);
+        if (result.Item1 != CurseKind.None) return result;
+        result = Roll(m, "curse_on_hit_level_flammability", "curse_on_hit_%_flammability", CurseKind.Flammability);
+        if (result.Item1 != CurseKind.None) return result;
+        result = Roll(m, "curse_on_hit_level_frostbite", "curse_on_hit_%_frostbite", CurseKind.Frostbite);
+        if (result.Item1 != CurseKind.None) return result;
         return Roll(m, "curse_on_hit_level_conductivity", "curse_on_hit_%_conductivity", CurseKind.Conductivity);
     }
 
@@ -769,10 +772,11 @@ static partial class Game
             damage += value;
         }
         // Vulnerability (a monster's curse-on-hit): 20% more damage taken while it lasts.
-        if (HasCurse(conn, now, CurseKind.Vulnerability))
+        if (CurseLevelAt(conn, now, CurseKind.Vulnerability) is > 0 and var vulnLevel)
         {
-            damage = (int)Math.Ceiling(damage * 1.2);
-            chaosDamage = (int)Math.Ceiling(chaosDamage * 1.2);
+            double more = 1 + CurseValue(vulnLevel, 20, 1, 40) / 100.0;
+            damage = (int)Math.Ceiling(damage * more);
+            chaosDamage = (int)Math.Ceiling(chaosDamage * more);
         }
         damage = FortificationDamageTaken(conn, damage);
         chaosDamage = FortificationDamageTaken(conn, chaosDamage);
@@ -794,8 +798,8 @@ static partial class Game
             monsterCritical, blocked, now, stats, source: id);
         // A monster's curse-on-hit affix puts the cursed state on the player for a few seconds, which the while_cursed
         // modifiers read (the curse's own effect is not modelled yet).
-        if (!blocked && CurseOnHit(m, now) is var cursedKind and not CurseKind.None)
-            SetCursed(conn, now + 5, cursedKind);
+        if (!blocked && CurseOnHit(m, now) is var (cursedKind, cursedLevel) && cursedKind != CurseKind.None)
+            SetCursed(conn, now + 5, cursedKind, cursedLevel);
         conn.RecentEnemyHits.Record(now);
         ChargesWhenHit(conn, blocked);
         // Brine Bound: a hit that lands, blocked too (blocking keeps the defender's when-hit effects, wiki
