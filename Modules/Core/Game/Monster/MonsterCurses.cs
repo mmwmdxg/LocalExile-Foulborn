@@ -22,6 +22,10 @@ static partial class Game
         "flammability" => CurseKind.Flammability,
         "frostbite" => CurseKind.Frostbite,
         "conductivity" => CurseKind.Conductivity,
+        "assassins_mark" or "assassins_mark_triggered" => CurseKind.AssassinsMark,
+        "poachers_mark" or "poachers_mark_triggered" => CurseKind.PoachersMark,
+        "warlords_mark" or "warlords_mark_triggered" => CurseKind.WarlordsMark,
+        "snipers_mark" => CurseKind.SnipersMark,
         _ => CurseKind.None,
     };
 
@@ -52,7 +56,9 @@ static partial class Game
         foreach (var entry in list)
         {
             int value = CurseValue(entry.Level, 20, 1, 40);
-            if (entry.Kind == CurseKind.Vulnerability) all += value;
+            // A mark's headline value is its extra critical-strike chance against the marked enemy, which the simple
+            // damage-taken model reads as more damage taken.
+            if (entry.Kind is CurseKind.Vulnerability or CurseKind.AssassinsMark) all += value;
             else if (entry.Kind is CurseKind.Flammability or CurseKind.Frostbite or CurseKind.Conductivity) elemental += value;
         }
         return (all, elemental);

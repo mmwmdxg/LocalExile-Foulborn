@@ -8,7 +8,11 @@ static partial class Game
     // The cursed state the while_cursed modifiers read (dev: /curse, or a monster's curse-on-hit affix). A real curse's
     // full machinery is not modelled; each kind carries its headline effect, scaled by the curse level (level 1 is the
     // base value, +1 point per level, capped at the level-20 value).
-    internal enum CurseKind { None, Vulnerability, TemporalChains, Enfeeble, Flammability, Frostbite, Conductivity }
+    internal enum CurseKind
+    {
+        None, Vulnerability, TemporalChains, Enfeeble, Flammability, Frostbite, Conductivity,
+        AssassinsMark, PoachersMark, WarlordsMark, SnipersMark,
+    }
 
     sealed class CurseState
     {

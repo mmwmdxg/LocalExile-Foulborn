@@ -69,6 +69,7 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.24 | `/monster_curse vulnerability 10` then hit a nearby monster | It takes about 20% more damage for 10 s |
 | 3.25 | `/monster_curse vulnerability` next to a hexproof monster | It refuses (no curse) |
 | 3.26 | Cast a Vulnerability curse gem near monsters | Nearby monsters take about 20% more damage for 8 s |
+| 3.27 | Cast Assassin's Mark near monsters | Marked monsters take extra damage |
 
 ## Reporting
 
