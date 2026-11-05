@@ -103,7 +103,11 @@ sealed class UniqueCatalog(ItemCatalog items, string folder = "data")
         // "HasNoSockets" (Kaom's Heart, Kaom's Roots) means the item has no sockets at all; the base's default sockets
         // were left on it and the client drew them next to the "no sockets" line.
         return items.Mods.ById("HasNoSockets") is { } noSockets && mods.Any(m => m.Hash == noSockets.Hash)
-            ? created with { Sockets = [], Links = [] }
+            ? created with
+            {
+                Sockets = [], Links = [],
+                Components = [.. created.Components.Where(c => c != "Sockets")],
+            }
             : created;
     }
 
