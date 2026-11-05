@@ -148,6 +148,9 @@ sealed class SpawnedMonster(string label, WalkEstimator walk, int aggroRange, in
     // The player's auras that reduce the damage a chilled monster deals (Occultist: hit_damage_+%_while_chilled), read
     // by its swing when it is chilled.
     public int HitDamageWhileChilledPct;
+    // Doryani's Prototype: while the monster is near a character with nearby_enemies_lightning_resist_equal_to_yours,
+    // its lightning resistance is the player's (int.MinValue: no override).
+    public int LightningResistanceOverride = int.MinValue;
     // Pride's more Physical Damage taken, ramped by the time this monster has stayed in the aura (EnemyDebuffsTick).
     public double PrideSince = double.NaN;
     public double PridePhysicalMore;

@@ -84,7 +84,9 @@ static partial class Game
             DamageType.Chaos => m.AuraResistanceFromPlayer.Chaos,
             _ => 0,
         };
-        return resistance with { Value = resistance.Value + m.Mods.Effects.Resistance(type) + aura,
+        int baseResistance = type == DamageType.Lightning && m.LightningResistanceOverride != int.MinValue
+            ? m.LightningResistanceOverride : resistance.Value;
+        return resistance with { Value = baseResistance + m.Mods.Effects.Resistance(type) + aura,
             Maximum = MonsterModEffects.MaxResistance, Penetration = pen.Of(type) };
     }
 

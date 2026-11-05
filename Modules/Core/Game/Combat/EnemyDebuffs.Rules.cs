@@ -63,6 +63,8 @@ static partial class Game
                 uint? coldResistanceKey = Stats.Key("base_cold_damage_resistance_%");
                 uint? chaosResistanceKey = Stats.Key("base_chaos_damage_resistance_%");
                 uint? chilledHitKey = Stats.Key("hit_damage_+%_while_chilled");
+                bool lightningEqual = Stats.Key("nearby_enemies_lightning_resist_equal_to_yours") is uint equalKey
+                    && conn.PlayerStats.GetValueOrDefault(equalKey) != 0;
                 // Pride is a skill aura whose effect is on enemies: a synthetic enemy aura carries its buff, and its ramp
                 // is kept per monster.
                 AuraCatalog.Aura? pride = conn.Auras.Values.FirstOrDefault(a => AuraCatalog.Family(a.EffectId) == "Pride");
@@ -97,7 +99,7 @@ static partial class Game
                             values: TauntedBuffValues, u68: BitConverter.SingleToUInt32Bits((float)(m.TauntedUntil - now))));
                         added++;
                     }
-                    double distance = living && (enemyAuras.Count > 0 || m.PlayerAuras.Count > 0)
+                    double distance = living && (enemyAuras.Count > 0 || m.PlayerAuras.Count > 0 || lightningEqual)
                         ? Dist(m.Walk.Position(now), here) : double.PositiveInfinity;
                     if (m.PlayerAuras.Count > 0)
                         foreach (var (definition, buff) in m.PlayerAuras.ToArray())
@@ -134,6 +136,7 @@ static partial class Game
                     m.TakenFromPlayer = (taunted ? config.TauntedDamageTakenPct : 0, elemental);
                     m.AuraResistanceFromPlayer = (coldResistance, chaosResistance);
                     m.HitDamageWhileChilledPct = chilledHit;
+                    m.LightningResistanceOverride = lightningEqual && distance <= 60 ? conn.Pools.LightningResistance : int.MinValue;
                 }
                 int? radius = conn.PlayerLife > 0 ? blindRadius : null;
                 HashSet<uint> inside = radius is int r
