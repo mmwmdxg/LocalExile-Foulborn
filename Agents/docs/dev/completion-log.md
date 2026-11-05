@@ -48,6 +48,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Skills | Curse effects scale with the curse level (level affixes carry it, chance affixes use the monster's level): +1 point per level, capped at the level-20 value. | `CurseState.CurseValue`, `Monsters.CurseOnHit` |
 | Skills | `curse_effect_on_self_+%` scales every curse's headline effect through `CursePoints`. | `CurseState.CursePoints` |
 | Skills | The player tick publishes the curse icon (BuffDefinitions 69/71/72/73/76/79) for the newest curse and removes it when it lapses. | `CurseState.SendCurses`, `Player.RunPlayerTick` |
+| Skills | Monster curses: Vulnerability and the elemental curses add to a monster's damage taken through `TakenFromPlayer`; `/monster_curse <kind> [seconds]` applies them to nearby monsters, and hexproof monsters refuse. A curse skill's cast is not wired yet. | `MonsterCurses`, `EnemyDebuffs.Rules`, `CommandsFeature` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

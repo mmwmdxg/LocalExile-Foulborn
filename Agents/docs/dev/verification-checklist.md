@@ -66,6 +66,8 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.21 | Flammability/Frostbite/Conductivity curse on hit | The matching resistance is 20 lower while it lasts |
 | 3.22 | `/curse 30 enfeeble`, hit a monster | Damage dealt is about 10% lower |
 | 3.23 | `/curse 30 flammability` | Curse icon appears on the player and clears when it lapses |
+| 3.24 | `/monster_curse vulnerability 10` then hit a nearby monster | It takes about 20% more damage for 10 s |
+| 3.25 | `/monster_curse vulnerability` next to a hexproof monster | It refuses (no curse) |
 
 ## Reporting
 

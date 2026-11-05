@@ -133,7 +133,8 @@ static partial class Game
                         m.PrideSince = double.NaN;
                         m.PridePhysicalMore = 0;
                     }
-                    m.TakenFromPlayer = (taunted ? config.TauntedDamageTakenPct : 0, elemental);
+                    var (curseAll, curseElemental) = MonsterCurseDamageTaken(conn, id, now);
+                    m.TakenFromPlayer = ((taunted ? config.TauntedDamageTakenPct : 0) + curseAll, elemental + curseElemental);
                     m.AuraResistanceFromPlayer = (coldResistance, chaosResistance);
                     m.HitDamageWhileChilledPct = chilledHit;
                     m.LightningResistanceOverride = lightningEqual && distance <= 60 ? conn.Pools.LightningResistance : int.MinValue;

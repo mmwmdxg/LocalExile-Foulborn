@@ -1317,6 +1317,23 @@ static class CommandsFeature
             await SendCharacterStats(remote, stream, ciphers, conn, $"curse {(on ? "on" : "off")}");
             await conn.Commands!.Reply(on ? $"Cursed with {kind} for {seconds} s." : "Curse cleared.");
         })
+        .Add("monster_curse", "/monster_curse <kind> [seconds] (dev: curse the nearby monsters)", async args =>
+        {
+            if (args.Length < 1) throw new ArgumentException("a curse kind");
+            CurseKind kind = Enum.TryParse<CurseKind>(args[0], ignoreCase: true, out var parsed) ? parsed : CurseKind.Vulnerability;
+            int seconds = args.Length > 1 && int.TryParse(args[1], out int s) && s > 0 ? s : 10;
+            int count = 0;
+            lock (conn.Monsters)
+            {
+                double now = conn.Clock.Elapsed.TotalSeconds;
+                var here = conn.Walk.Position(now);
+                foreach (var (monsterId, m) in conn.Monsters)
+                    if (m.Hostile && !m.Dead && m.Life > 0 && Dist(m.Walk.Position(now), here) <= 60
+                        && SetMonsterCurse(conn, monsterId, m, kind, seconds))
+                        count++;
+            }
+            await conn.Commands!.Reply($"Cursed {count} nearby monster(s) with {kind} for {seconds} s.");
+        })
         .Add("blockhit", "/blockhit <attack|spell> <fire|cold|lightning|chaos|physical> <damage> (dev: hit through block and resistance)", async args =>
         {
             if (args.Length < 3) throw new ArgumentException("attack|spell, a damage type and an amount");
