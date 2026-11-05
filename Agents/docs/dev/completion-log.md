@@ -27,6 +27,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Skills | `movement_speed_cannot_be_reduced_below_base` keeps the character at base speed under slows. | `ClientState.ApplyMovementSpeedAt` |
 | Skills | `action_speed_cannot_be_reduced_below_base` does the same for action speed (Garb of the Ephemeral, Kaom's Roots). | `PlayerAilments.PlayerActionFactor` |
 | Skills | `cannot_gain_endurance/frenzy/power_charges` refuse positive charge gains (losses still apply). | `ChargeSession.Apply` |
+| Skills | A cursed state (`/curse [seconds]`, module-side per connection) feeds `while_cursed` / `while_not_cursed` block, spell block and movement speed modifiers. | `Passive/CurseState.cs`, `Progression.PassiveBonus`, `CommandsFeature` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

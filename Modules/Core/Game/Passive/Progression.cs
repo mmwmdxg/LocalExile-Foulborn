@@ -565,7 +565,7 @@ static partial class Game
         SuspendRestrictedOwnAuras(conn, new(sources));
         var weapons = WeaponProfileFor(conn);
         var activeWeapon = WeaponProfileFor(conn, activeSet: true);
-        var bonus = PassiveBonus(sources, weapons, snapshot.Attributes);
+        var bonus = PassiveBonus(sources, weapons, snapshot.Attributes, CursedAt(conn, conn.Clock.Elapsed.TotalSeconds));
         int EquipmentInput(string name) => Stats.Key(name) is uint key
             ? conn.PlayerStats.TryGetValue(key, out int value) ? value : sources.GetValueOrDefault(key) : 0;
         var gear = EquippedBaseDefences(conn, EquipmentInput);
@@ -773,7 +773,8 @@ static partial class Game
     // damage, the base resistances (base_resist_all_elements_% applies to fire, cold and lightning), the shield-specific
     // block nodes when a shield is equipped, critical strike chance and multiplier, and reservation efficiency and aura
     // effect.
-    internal static CharacterStats.Bonus PassiveBonus(Dictionary<uint, int> stats, WeaponProfile weapons, AttributeModifiers attributes)
+    internal static CharacterStats.Bonus PassiveBonus(Dictionary<uint, int> stats, WeaponProfile weapons, AttributeModifiers attributes,
+        bool cursed = false)
     {
         int Get(string name) => Stats.Key(name) is uint k ? stats.GetValueOrDefault(k) : 0;
         int allRes = Get("base_resist_all_elements_%");
@@ -923,10 +924,13 @@ static partial class Game
             SpellSuppressionWhileMoving: Get("spell_suppression_chance_%_while_moving"),
             SpellSuppressionIfHitRecently: Get("spell_suppression_chance_%_if_enemy_hit_recently"),
             SpellSuppressionWhileFullEnergyShield: Get("spell_suppression_chance_%_while_on_full_energy_shield"),
-            MovementVelocityPct: Get("base_movement_velocity_+%"),
+            MovementVelocityPct: Get("base_movement_velocity_+%")
+                + (cursed ? Get("movement_velocity_+%_while_cursed") : 0),
             BlockChance: Get("additional_block_%") + Get("attack_block_%") + Get("monster_base_block_%")
+                + (cursed ? 0 : Get("additional_block_%_while_not_cursed"))
                 + blockWhileDualOrShield + shieldBlock + staffBlock + dualBlock + bowBlock,
-            SpellBlockChance: Get("base_spell_block_%") + Get("additional_spell_block_%") + staffOrShieldSpell
+            SpellBlockChance: Get("base_spell_block_%") + Get("additional_spell_block_%")
+                + (cursed ? Get("additional_spell_block_%_while_cursed") : 0) + staffOrShieldSpell
                 + shieldSpellBlock + staffSpellBlock + dualSpellBlock + bowSpellBlock,
             BlockChanceMax: Get("maximum_block_%"), SpellBlockChanceMax: Get("base_maximum_spell_block_%"),
             BlockChanceInc: Get("block_chance_+%"), BlockChanceMore: Get("block_chance_+%_final"),
