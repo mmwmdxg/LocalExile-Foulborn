@@ -869,7 +869,17 @@ static partial class Game
             DamageType.Chaos => conn.Pools.ChaosResistance,
             _ => 0,
         };
-        return type == DamageType.Physical ? modifier : modifier + ResistancePenalty(conn);
+        // Elemental curses: the matching resistance is 20% lower while the curse lasts (a fixed stand-in for the
+        // curse's level-scaled value).
+        double now = conn.Clock.Elapsed.TotalSeconds;
+        int cursePenalty = type switch
+        {
+            DamageType.Fire when HasCurse(conn, now, CurseKind.Flammability) => 20,
+            DamageType.Cold when HasCurse(conn, now, CurseKind.Frostbite) => 20,
+            DamageType.Lightning when HasCurse(conn, now, CurseKind.Conductivity) => 20,
+            _ => 0,
+        };
+        return type == DamageType.Physical ? modifier : modifier + ResistancePenalty(conn) - cursePenalty;
     }
 
     // The per-type maximum from Character.ot's 75 plus the passive/gear maximum-resistance modifiers, hard-capped at 90.

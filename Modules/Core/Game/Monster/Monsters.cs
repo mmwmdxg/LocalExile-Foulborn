@@ -608,7 +608,13 @@ static partial class Game
         if (result != CurseKind.None) return result;
         result = Roll(m, "curse_on_hit_level_temporal_chains", "curse_on_hit_%_temporal_chains", CurseKind.TemporalChains);
         if (result != CurseKind.None) return result;
-        return Roll(m, "curse_on_hit_level_enfeeble", "curse_on_hit_%_enfeeble", CurseKind.Enfeeble);
+        CurseKind roll = Roll(m, "curse_on_hit_level_enfeeble", "curse_on_hit_%_enfeeble", CurseKind.Enfeeble);
+        if (roll != CurseKind.None) return roll;
+        roll = Roll(m, "curse_on_hit_level_flammability", "curse_on_hit_%_flammability", CurseKind.Flammability);
+        if (roll != CurseKind.None) return roll;
+        roll = Roll(m, "curse_on_hit_level_frostbite", "curse_on_hit_%_frostbite", CurseKind.Frostbite);
+        if (roll != CurseKind.None) return roll;
+        return Roll(m, "curse_on_hit_level_conductivity", "curse_on_hit_%_conductivity", CurseKind.Conductivity);
     }
 
     internal static async Task MonsterSwing(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn, uint id,

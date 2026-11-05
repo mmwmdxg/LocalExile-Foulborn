@@ -5,7 +5,7 @@ static partial class Game
     // The cursed state the while_cursed modifiers read (dev: /curse, or a monster's curse-on-hit affix). A real curse's
     // full machinery is not modelled; the common kinds carry their headline effect only, and the number of curses that
     // can stack follows number_of_additional_curses_allowed (base one).
-    internal enum CurseKind { None, Vulnerability, TemporalChains, Enfeeble }
+    internal enum CurseKind { None, Vulnerability, TemporalChains, Enfeeble, Flammability, Frostbite, Conductivity }
 
     sealed class CurseState
     {

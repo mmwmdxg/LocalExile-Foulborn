@@ -62,6 +62,7 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.18 | Vulnerability curse on hit | 20% more damage taken while it lasts |
 | 3.19 | Temporal Chains curse on hit | Action speed drops 20% while it lasts |
 | 3.20 | Two curse sources, one additional curse allowed | Both curses stay; the third replaces the oldest |
+| 3.21 | Flammability/Frostbite/Conductivity curse on hit | The matching resistance is 20 lower while it lasts |
 
 ## Reporting
 
