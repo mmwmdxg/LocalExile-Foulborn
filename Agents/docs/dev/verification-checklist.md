@@ -64,6 +64,7 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.19 | Temporal Chains curse on hit | Action speed drops 20% while it lasts |
 | 3.20 | Two curse sources, one additional curse allowed | Both curses stay; the third replaces the oldest |
 | 3.21 | Flammability/Frostbite/Conductivity curse on hit | The matching resistance is 20 lower while it lasts |
+| 3.22 | `/curse 30 enfeeble`, hit a monster | Damage dealt is about 10% lower |
 
 ## Reporting
 

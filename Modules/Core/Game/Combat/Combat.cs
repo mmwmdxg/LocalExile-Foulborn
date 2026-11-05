@@ -1209,6 +1209,9 @@ static partial class Game
         bool? rampageSource = null, IReadOnlyDictionary<uint, int>? player = null, (int X, int Y)? allyAt = null)
     {
         if (m.Dead || m.Life == 0) return null;
+        // Enfeeble (a monster's curse on the player): 10% less damage dealt while it lasts.
+        if (HasCurse(conn, conn.Clock.Elapsed.TotalSeconds, CurseKind.Enfeeble))
+            damage = (int)Math.Ceiling(damage * 0.9);
         (m.Life, bool starts) = TakeOwnerDamageLocked(conn, m, damage, rampageSource, player);
         if (allyAt is null) conn.LastEnemyHitAt = m.PlayerHitAt = ProjectileWorldTime(conn);
         if (m.Life == 0) { m.Aggro = false; m.Dead = true; CollectVaalSoulAtDeathLocked(conn, m); }
