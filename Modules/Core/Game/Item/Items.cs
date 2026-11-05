@@ -1004,6 +1004,8 @@ static partial class Game
                 CurrencyEffects.Catalyst(target, catalystType, catalystRow, random),
             CurrencyEffects.TailoringOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } tailoringType
                 ? CurrencyEffects.Tailoring(target, tailoringType, ItemsFor(conn).Mods, ItemsFor(conn), random) : null,
+            CurrencyEffects.TemperingOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } temperingType
+                ? CurrencyEffects.Tempering(target, temperingType, ItemsFor(conn).Mods, random) : null,
             CurrencyEffects.GlassblowersBauble => CurrencyEffects.Glassblower(target),
             CurrencyEffects.GemcuttersPrism => CurrencyEffects.Gemcutter(target),
             CurrencyEffects.FracturingOrb => CurrencyEffects.Fracture(target, RollsFor(conn), random),

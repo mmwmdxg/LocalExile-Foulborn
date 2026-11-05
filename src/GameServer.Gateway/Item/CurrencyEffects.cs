@@ -124,6 +124,21 @@ static class CurrencyEffects
 
     public const string TailoringOrb = "Metadata/Items/Currency/CurrencyHeistArmourEnchant";
 
+    /// <summary>Tempering Orb (the weapon counterpart of the Tailoring Orb): replaces a weapon's enchantment with one
+    /// random Heist weapon enchantment (Mods.dat WeaponEnchantmentHeist*), keeping every other modifier, the quality
+    /// and the sockets. Corrupted/mirrored, non-weapon and unmodifiable targets are refused before spending.</summary>
+    public const string TemperingOrb = "Metadata/Items/Currency/CurrencyHeistWeaponEnchant";
+
+    public static Item? Tempering(Item item, ItemCatalog.BaseType type, ModCatalog mods, Random random)
+    {
+        if (!item.Components.Contains("Weapon") || item.Corrupted || item.Mirrored || !item.Components.Contains("Mods") ||
+            type.Unmodifiable) return null;
+        var pool = mods.All.Where(m => m.Id.StartsWith("WeaponEnchantmentHeist", StringComparison.Ordinal)).ToList();
+        if (pool.Count == 0) return null;
+        var enchant = pool[random.Next(pool.Count)].Roll(ModSection.Enchant, random);
+        return item with { Mods = [.. item.Mods.Where(m => m.Section != ModSection.Enchant), enchant] };
+    }
+
     /// <summary>Tailoring Orb: replaces a body armour's enchantment with one random Heist armour enchantment (Mods.dat
     /// ArmourEnchantmentHeist*), keeping every other modifier, the quality and the sockets. Corrupted/mirrored,
     /// non-body-armour and unmodifiable targets are refused before spending. The orb's "may reforge sockets" outcome is

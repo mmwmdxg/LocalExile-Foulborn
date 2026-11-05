@@ -393,6 +393,9 @@ Part of [Status](../Status.md); what to build next in this area is in
   before spending. The orb's socket reforge is a 1-in-4 reroll that always changes the socket count and rolls new
   socket colours; a socket-colour enchant (`all sockets are X`, `N white sockets`) is applied last and wins (verified
   live 2026-11-05).
+- **Tempering Orb:** the weapon counterpart of the Tailoring Orb: replaces a weapon's enchantment with one of the
+  `WeaponEnchantmentHeist*` rows, keeping the other modifiers, quality and sockets; corrupted/mirrored, non-weapon and
+  unmodifiable targets are refused before spending. Gateway-side; native check pending.
 - **Jewellery catalysts:** `CurrencyJewelleryQuality*` add +1% quality of their `AlternateQualityTypes` row on an
   amulet, ring or belt up to 20%, carried in Mods flags bit 9 (row u8 + quality u8) and saved; corrupted/mirrored,
   other classes, capped items and mismatched catalyst types are refused before spending. The Tainted Catalyst only

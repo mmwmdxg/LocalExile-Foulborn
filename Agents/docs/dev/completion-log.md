@@ -10,6 +10,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 |---|---|---|
 | Skills (gems) | Vaal Orb on a gem picks evenly among no change / +1 level over the cap (experience -1) / quality 23% / creatable Vaal variant, and corrupts it. | `Modules/Core/Game/Item/Items.cs` (`VaalGem`) |
 | Currency | The Volatile Vaal Orb (`CurrencyHellscapeModValues`) sets a changeable unique's modifiers to the top of their range and corrupts it. | `Modules/Core/Game/Item/Items.cs` (`VolatileVaalMax`) |
+| Currency | Tempering Orb (`CurrencyHeistWeaponEnchant`) replaces a weapon's enchantment with one `WeaponEnchantmentHeist*` row, keeping the rest. | `CurrencyEffects.Tempering` |
 | Currency | Orb of Chance accepts normal and rare equipment, keeps a rare item's enchantment, and succeeds by default (`Game_CHANCE_SUCCESS_PERCENT`). | `UniqueCatalog.Chance` |
 | Currency | Corrupting the Foulborn Rathpith Globe raises its two per-100-life modifiers from 3% to 4% (both `/item_state corrupted` and Vaal). | `ItemStates.Corrupt`, `ItemRolls.Vaal` |
 | Items | Uniques whose mods carry `HasNoSockets` (Kaom's Heart, Kaom's Roots) are created without the Sockets component. | `UniqueCatalog.Create` |
