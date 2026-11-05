@@ -95,7 +95,19 @@ static partial class Game
         return CharacterStatSources(conn).Stats.GetValueOrDefault(key);
     }
 
-    internal static double PlayerActionFactor(ClientState conn) =>
-        Math.Max(.01, conn.ElementalAilments.TotalActionFactor(conn.Clock.Elapsed.TotalSeconds,
+    internal static double PlayerActionFactor(ClientState conn)
+    {
+        double factor = Math.Max(.01, conn.ElementalAilments.TotalActionFactor(conn.Clock.Elapsed.TotalSeconds,
             ActionSpeedReduction(conn)));
+        // action_speed_cannot_be_reduced_below_base (Garb of the Ephemeral, Kaom's Roots): slows never take the
+        // character's action speed below its own base.
+        if (Stats.Key("action_speed_cannot_be_reduced_below_base") is uint key)
+        {
+            bool flagged;
+            lock (conn.Monsters) flagged = conn.PlayerStats.TryGetValue(key, out int dev) && dev != 0;
+            if (!flagged) flagged = CharacterStatSources(conn).Stats.GetValueOrDefault(key) != 0;
+            if (flagged) factor = Math.Max(factor, 1);
+        }
+        return factor;
+    }
 }
