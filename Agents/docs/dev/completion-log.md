@@ -30,6 +30,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Skills | A cursed state (`/curse [seconds]`, module-side per connection) feeds `while_cursed` / `while_not_cursed` block, spell block and movement speed modifiers. | `Passive/CurseState.cs`, `Progression.PassiveBonus`, `CommandsFeature` |
 | Skills | Consecrated ground now feeds `additional_block_%_while_on_consecrated_ground` through `FlaskGrounds.PlayerOnConsecrated`. | `Progression.PassiveBonus` |
 | Items | Gorgon's Gaze: `additional_physical_damage_reduction_%_while_moving` lowers physical hits while the player walks. | `Monsters.MonsterSwing` |
+| Items | Malachai's Loop: `add_power_charge_on_skill_hit_%` was missing from the charge rules and now rolls on a hit. | `ChargeGains` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

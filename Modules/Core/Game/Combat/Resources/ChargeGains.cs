@@ -61,6 +61,7 @@ static class ChargeGains
         new("add_frenzy_charge_on_kill_%_chance_while_dual_wielding", ChargeType.Frenzy, (e, w) => e is ChargeEvent.Kill && w.DualWield),
         // On hit
         new("add_frenzy_charge_on_skill_hit_%", ChargeType.Frenzy, (e, _) => e is ChargeEvent.Hit),
+        new("add_power_charge_on_skill_hit_%", ChargeType.Power, (e, _) => e is ChargeEvent.Hit),
         new("gain_frenzy_charge_on_hitting_rare_or_unique_enemy_%", ChargeType.Frenzy, (e, _) => e is ChargeEvent.Hit h && RareOrUnique(h.Rarity)),
         new("chance_to_gain_power_charge_on_rare_or_unique_enemy_hit_%", ChargeType.Power, (e, _) => e is ChargeEvent.Hit h && RareOrUnique(h.Rarity)),
         // On critical strike
