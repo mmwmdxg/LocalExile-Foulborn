@@ -41,6 +41,11 @@ static class PassiveBuffAuras
     static readonly HashSet<string> EnemyAuraTemplates =
     [
         "CustomAscendancyNearbyEnemiesIncreasedElementalDamageTaken", // Paladin Light of Divinity: 2551 Augury of Penitence
+        // The elemental damage taken of the Inquisitor/Scion Augury of Penitence trees: the same consumer as Light of
+        // Divinity. Their second stat (inquisitor_aura_elemental_damage_+%_final) has no consumer, so only the taken
+        // increase acts.
+        "AuguryOfPenitence", "AuguryOfPenitenceHardMode", "AuguryOfPenitenceRoyale",
+        "ScionAuguryOfPenitence", "ScionAuguryOfPenitenceHardMode",
     ];
 
     /// <summary>The passive blind aura: every enemy in it is Blinded (Game.Blinded).</summary>

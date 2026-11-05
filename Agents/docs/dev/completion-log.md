@@ -17,6 +17,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | Kaom's Heart rolls its maximum life in 780–1220 (the client's range) instead of a fixed 1000. | `UniqueItemSeed.cs` |
 | Items | `/item_copy [mirrored]` duplicates the held item. | `CommandsFeature.cs` |
 | Items | Replica Headhunter steals a magic monster's affixes at its 20% per-kill chance (Headhunter's rare path unchanged). | `UniqueBeltsFeature.StealMonsterMods`, `StolenMods` |
+| Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 
 ## Parked for the single live-verification pass
 
