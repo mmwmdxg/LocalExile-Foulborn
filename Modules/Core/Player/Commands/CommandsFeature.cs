@@ -1303,16 +1303,19 @@ static class CommandsFeature
             await SendCharacterStats(remote, stream, ciphers, conn, $"lucky block {mode}");
             await conn.Commands!.Reply($"Lucky block: attack {(attack ? "on" : "off")}, spell {(spell ? "on" : "off")}.");
         })
-        .Add("curse", "/curse [seconds] (dev: the cursed state that while_cursed modifiers read; no argument clears it)", async args =>
+        .Add("curse", "/curse [seconds] [vulnerability|temporal_chains|enfeeble|flammability|frostbite|conductivity] (dev; no argument clears)", async args =>
         {
             double now = conn.Clock.Elapsed.TotalSeconds;
             int seconds = 0;
             bool on = args.Length > 0 && int.TryParse(args[0], out seconds) && seconds > 0;
-            if (on) SetCursed(conn, now + seconds, CurseKind.Vulnerability);
+            CurseKind kind = args.Length > 1
+                ? Enum.TryParse<CurseKind>(args[1], ignoreCase: true, out var parsed) ? parsed : CurseKind.Vulnerability
+                : CurseKind.Vulnerability;
+            if (on) SetCursed(conn, now + seconds, kind);
             else ClearCurses(conn);
             lock (conn.Monsters) conn.Pools = PoolsFor(conn, conn.Pools.Level);
             await SendCharacterStats(remote, stream, ciphers, conn, $"curse {(on ? "on" : "off")}");
-            await conn.Commands!.Reply(on ? $"Cursed for {seconds} s." : "Curse cleared.");
+            await conn.Commands!.Reply(on ? $"Cursed with {kind} for {seconds} s." : "Curse cleared.");
         })
         .Add("blockhit", "/blockhit <attack|spell> <fire|cold|lightning|chaos|physical> <damage> (dev: hit through block and resistance)", async args =>
         {

@@ -42,7 +42,8 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 
 | # | Do | Expect |
 |---|---|---|
-| 3.1 | `/curse 30` with Atziri's Mirror | Spell block rises for 30 s, tooltip buff shown |
+| 3.1 | `/curse 30 vulnerability` with Atziri's Mirror | Spell block rises for 30 s; 20% more damage taken |
+| 3.1b | `/curse 30 temporal_chains` | Action speed drops 20% |
 | 3.2 | `/curse` | State cleared, block returns |
 | 3.3 | Stand on consecrated ground with the block stat | Attack block rises |
 | 3.4 | Hold max endurance charges with the immunity stat | Ignite and shock cannot be applied |
