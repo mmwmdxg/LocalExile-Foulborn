@@ -66,8 +66,12 @@ static partial class Game
     internal static (int Life, int Mana, uint EnergyShield) BlockRecovery(ClientState conn, IReadOnlyDictionary<uint, int> stats)
     {
         long Pct(string name, long maximum) => Stats.Key(name) is uint key ? maximum * Math.Max(0, stats.GetValueOrDefault(key)) / 100 : 0;
+        // Aegis Aurora (energy_shield_%_of_armour_rating_gained_on_block): a share of the armour rating as energy
+        // shield on block, added to the flat percent-of-maximum sources.
+        long armourShare = Stats.Key("energy_shield_%_of_armour_rating_gained_on_block") is uint armourKey && conn.Pools.Armour > 0
+            ? (long)(conn.Pools.Armour * Math.Max(0, stats.GetValueOrDefault(armourKey)) / 100m) : 0;
         return ((int)Pct("recover_%_of_maximum_life_on_block", conn.PlayerMaxLife), (int)Pct("mana_%_gained_on_block", conn.Pools.Mana),
-            (uint)Pct("energy_shield_%_gained_on_block", conn.EnergyShield.Maximum));
+            (uint)(Pct("energy_shield_%_gained_on_block", conn.EnergyShield.Maximum) + armourShare));
     }
 
     // The Leadership buff on the player (S→C 0x1c1 with its remaining seconds, 0x1c2 when it ends or the player dies) and
