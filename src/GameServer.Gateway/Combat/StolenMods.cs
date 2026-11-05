@@ -14,6 +14,10 @@ sealed class StolenMods
     /// <summary>On Headhunter's GainRareMonsterModsOnKillUniqueBelt7_: having it is what steals.</summary>
     public const string SourceStat = "gain_rare_monster_mods_on_kill_ms";
 
+    /// <summary>Replica Headhunter's GainMagicMonsterModsOnKillUnique__1_: the per-kill chance to steal a magic
+    /// monster's affixes.</summary>
+    public const string MagicChanceStat = "gain_magic_monster_mods_on_kill_%_chance";
+
     /// <summary>How long each modifier lasts.</summary>
     public const double Seconds = 60;
 

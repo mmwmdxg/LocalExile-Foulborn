@@ -263,8 +263,9 @@ Part of [Status](../Status.md); what to build next in this area is in
   its rolled increased damage against rares (not seen live yet; they end on an area change, where the game keeps them).
   Chancing works: the Orb of Chance accepts normal and rare equipment, keeps a rare item's enchantment, and succeeds by
   default (`Game_CHANCE_SUCCESS_PERCENT` overrides the rate). The Foulborn variant replaces the rightmost explicit.
-  Not yet: other uniques' mechanics, the "effects cannot be removed" backstop,
-  Replica Headhunter and Enkindling (`UniqueCatalog`, `Program.Mageblood`, `StolenMods`, `Program.UniqueBelts`;
+  Replica Headhunter steals a magic monster's affixes instead, at its 20% per-kill chance, through the same stacks.
+  Not yet: other uniques' mechanics and the "effects cannot be removed" backstop
+  (`UniqueCatalog`, `Program.Mageblood`, `StolenMods`, `Program.UniqueBelts`;
   [13](../docs/protocol/13-items.md) §2e, §8a).
 
 - Developer item tools: `/item_copy [mirrored]` duplicates the held item (a plain copy unless "mirrored"); the

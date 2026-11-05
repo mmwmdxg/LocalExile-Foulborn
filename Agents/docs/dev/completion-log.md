@@ -16,6 +16,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | Uniques whose mods carry `HasNoSockets` (Kaom's Heart, Kaom's Roots) are created without the Sockets component. | `UniqueCatalog.Create` |
 | Items | Kaom's Heart rolls its maximum life in 780–1220 (the client's range) instead of a fixed 1000. | `UniqueItemSeed.cs` |
 | Items | `/item_copy [mirrored]` duplicates the held item. | `CommandsFeature.cs` |
+| Items | Replica Headhunter steals a magic monster's affixes at its 20% per-kill chance (Headhunter's rare path unchanged). | `UniqueBeltsFeature.StealMonsterMods`, `StolenMods` |
 
 ## Parked for the single live-verification pass
 
@@ -24,6 +25,16 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 - Orb of Chance on a rare body armour with a Tailoring enchant (enchant must survive).
 - Kaom's Heart with no sockets at all (component removal) and its 780–1220 life.
 - `/item_copy` copies: plain copy stays modifiable; the mirrored copy refuses currency.
+
+## Data gaps found while looking for the next batch
+
+- Veiled modifiers: the local Mods.dat has the 14 placeholder rows (domain 26, stats `veiled_mod_type`/`veiled_mod_seed`)
+  but no link from a veil type to the concrete modifier rows, so an accurate unveiling pool cannot be built from local
+  data alone. PoEDB's Veiled modifier page lists the pools as text; mapping it onto Mods Ids is a separate data job.
+- Regrading Lens: `AlternateQualityTypes.json` only carries jewellery and map quality rows, not the gem quality types
+  (Anomalous/Divergent/Phantasmal), so a quality-type reroll has no target table.
+- Enkindling/Instilling: already implemented in `FlaskEnchantments.Apply` (GenerationType 21/22 pools); the status line
+  that listed Enkindling as missing was stale and is corrected.
 
 ## Next gaps (order kept: skills → currency → items)
 

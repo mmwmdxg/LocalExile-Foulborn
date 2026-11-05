@@ -6,11 +6,18 @@ using static Program;
 
 static class UniqueBeltsFeature
 {
-    /// <summary>Headhunter's kill: the rare's affixes as stacks (StolenMods), when the killer has its stat.</summary>
+    /// <summary>Headhunter's kill: the rare's affixes as stacks (StolenMods), when the killer has its stat. Replica
+    /// Headhunter steals a magic monster's affixes instead, at the stat's chance per kill.</summary>
     internal static void StealMonsterMods(ClientState conn, SpawnedMonster m)
     {
-        if (m.Rarity != MonsterRarity.Rare || !m.Mods.Affixes.Any() || conn.PlayerLife == 0) return;
-        if (Stats.Key(StolenMods.SourceStat) is not uint key || CharacterPlayerStats(conn).GetValueOrDefault(key) <= 0) return;
+        if (!m.Mods.Affixes.Any() || conn.PlayerLife == 0) return;
+        var player = CharacterPlayerStats(conn);
+        bool rare = m.Rarity == MonsterRarity.Rare && Stats.Key(StolenMods.SourceStat) is uint rareKey
+            && player.GetValueOrDefault(rareKey) > 0;
+        int chance = m.Rarity == MonsterRarity.Magic && Stats.Key(StolenMods.MagicChanceStat) is uint magicKey
+            ? Math.Min(100, Math.Max(0, player.GetValueOrDefault(magicKey))) : 0;
+        bool magic = chance > 0 && Random.Shared.Next(100) < chance;
+        if (!rare && !magic) return;
         conn.StolenMods.Steal(m.Mods, ItemsFor(conn).Mods, conn.Clock.Elapsed.TotalSeconds);
     }
 
