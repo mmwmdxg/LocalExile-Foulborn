@@ -469,6 +469,7 @@ static partial class Game
             await SendTotems(remote, stream, ciphers, conn);
             await SendSpiritChieftain(remote, stream, ciphers, conn);
             await SendOnslaught(remote, stream, ciphers, conn);
+            await SendCurses(remote, stream, ciphers, conn);
             // gain_rampage_while_at_maximum_endurance_charges: hold the streak while the endurance charges are full.
             if (Stats.Key("gain_rampage_while_at_maximum_endurance_charges") is uint rampageKey
                 && CharacterPlayerStats(conn).GetValueOrDefault(rampageKey) != 0)

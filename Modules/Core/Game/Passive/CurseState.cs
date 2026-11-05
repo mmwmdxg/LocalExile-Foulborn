@@ -1,4 +1,7 @@
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using GameServer.Core.Protocol.Instance;
+using GameServer.Core.Protocol.Login;
 
 static partial class Game
 {
@@ -10,6 +13,9 @@ static partial class Game
     sealed class CurseState
     {
         public readonly List<(CurseKind Kind, double Until, int Level)> Active = [];
+        // The client buff shown for the newest curse (BuffDefinitions 69/71/72/73/76/79).
+        public CurseKind Shown;
+        public ushort Buff;
     }
 
     static readonly ConditionalWeakTable<ClientState, CurseState> Cursed = new();
@@ -83,4 +89,33 @@ static partial class Game
     /// <summary>Clear every curse (dev: /curse with no argument).</summary>
     internal static void ClearCurses(ClientState conn) =>
         Cursed.GetOrCreateValue(conn).Active.Clear();
+
+    // The client buff row per curse kind.
+    static ushort CurseBuffRow(CurseKind kind) => kind switch
+    {
+        CurseKind.Vulnerability => 79,
+        CurseKind.TemporalChains => 69,
+        CurseKind.Enfeeble => 76,
+        CurseKind.Flammability => 71,
+        CurseKind.Frostbite => 72,
+        CurseKind.Conductivity => 73,
+        _ => 79,
+    };
+
+    /// <summary>Publish or swap the curse icon on the player (player tick).</summary>
+    internal static async Task SendCurses(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn)
+    {
+        var state = Cursed.GetOrCreateValue(conn);
+        Prune(state, conn.Clock.Elapsed.TotalSeconds);
+        CurseKind current = state.Active.Count > 0 ? state.Active[^1].Kind : CurseKind.None;
+        if (state.Shown == current) return;
+        if (state.Buff != 0)
+            await Send(remote, stream, ciphers, InstanceEntities.RemoveBuff(PlayerId, state.Buff), "0x01c2 player buff: curse off");
+        state.Buff = 0;
+        state.Shown = current;
+        if (current == CurseKind.None) return;
+        state.Buff = conn.NextBuff++;
+        await Send(remote, stream, ciphers, InstanceEntities.AddBuff(PlayerId, state.Buff, CurseBuffRow(current), PlayerId),
+            "0x01c1 player buff: curse");
+    }
 }
