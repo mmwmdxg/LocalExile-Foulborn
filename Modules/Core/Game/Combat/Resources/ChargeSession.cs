@@ -56,6 +56,7 @@ sealed class ChargeSession
         {
             limits[(int)type] = Charges.LimitsOf(type, Record, State.Held(type));
             Record(ChargeGains.ToMaximumStat(type));
+            Record($"cannot_gain_{Charges.Name(type)}_charges");
             Record(Charges.ConversionFlag(type));
             Record(Charges.MinimumConversionFlag(type));
         }
@@ -132,6 +133,12 @@ sealed class ChargeSession
 
     void Apply(ChargeGains.Gain gain, double now, Random rng, List<string> log)
     {
+        // cannot_gain_<type>_charges (Replica Fragility's kin): a positive gain is refused outright.
+        if (gain.Count > 0 && Observed($"cannot_gain_{Charges.Name(gain.Type)}_charges") != 0)
+        {
+            log.Add($"{gain.Source}: {Charges.Name(gain.Type)} charges refused (cannot gain)");
+            return;
+        }
         var current = limits[(int)gain.Type];
         if (gain.Count < 0)
         {
