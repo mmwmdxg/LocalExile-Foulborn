@@ -38,8 +38,14 @@ sealed partial class ClientState
     internal void ApplyMovementSpeedAt(double at)
     {
         lock (Monsters)
+        {
+            double factor = Program.GameLogicOrNull?.PlayerActionFactor(this) ?? ElementalAilments.ActionFactor(at);
+            // movement_speed_cannot_be_reduced_below_base (Boots of the Brotherhood's kin): slows never take the
+            // character below its own base speed.
+            if (Program.Stats.Key("movement_speed_cannot_be_reduced_below_base") is uint key
+                && PlayerStats.GetValueOrDefault(key) != 0) factor = Math.Max(factor, 1);
             Walk.SetSpeed(Math.Max(1, Program.WalkSpeed * (100L + Pools.MovementVelocityPct
-                + Rampage.Current.MovementPercent) / 100.0 * (Program.GameLogicOrNull?.PlayerActionFactor(this)
-                    ?? ElementalAilments.ActionFactor(at))), at);
+                + Rampage.Current.MovementPercent) / 100.0 * factor), at);
+        }
     }
 }
