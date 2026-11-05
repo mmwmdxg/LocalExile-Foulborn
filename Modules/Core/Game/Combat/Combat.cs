@@ -1414,7 +1414,9 @@ static partial class Game
             lock (conn.Monsters) have = conn.Experience;
             if (have < needed) await GainExperience(remote, stream, ciphers, conn, needed - have, $"quest: {m.Label} killed, level {level}");
         }
-        await GainKillCharges(remote, stream, ciphers, conn, m.Rarity, $"{m.Rarity} {m.Label} 0x{id:x} killed");
+        // Poacher's Mark: one extra flask charge for killing the marked enemy.
+        int poacherExtra = MonsterHasCurse(conn, m, conn.Clock.Elapsed.TotalSeconds, CurseKind.PoachersMark) ? 1 : 0;
+        await GainKillCharges(remote, stream, ciphers, conn, m.Rarity, $"{m.Rarity} {m.Label} 0x{id:x} killed", poacherExtra);
         await DropLoot(remote, stream, ciphers, conn, m, at);
     }
 

@@ -71,6 +71,7 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.26 | Cast a Vulnerability curse gem near monsters | Nearby monsters take about 20% more damage for 8 s |
 | 3.27 | Cast Assassin's Mark near monsters | Marked monsters take extra damage |
 | 3.28 | Cast Warlord's Mark, kill a marked monster | An Endurance Charge is gained |
+| 3.29 | Cast Poacher's Mark, kill a marked monster | Flasks gain one extra charge |
 
 ## Reporting
 
