@@ -108,7 +108,7 @@ static partial class Game
         double previous = conn.ElementalAilments.ActionFactor(now);
         foreach (var e in added)
             conn.ElementalAilments.Inflict(Enum.Parse<PlayerElementalAilments.Kind>(e.Kind.ToString()), e.Magnitude,
-                e.Until - e.From, now, Player, random);
+                e.Until - e.From, now, WithEnduranceAilmentImmunity(conn, Player), random);
         PlayerAilmentsChangedLocked(conn, previous, now);
     }
 

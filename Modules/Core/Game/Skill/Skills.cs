@@ -263,7 +263,7 @@ static partial class Game
         stats = StatSnapshotTailFor(conn, tailInputs with { Stats = stats }, StatSnapshotStage.Offence);
         // Keep both side effects at their original positions, including on cache hits. Derived immunity and action-speed
         // floors are resolved before reading the final stage's live inputs.
-        conn.ElementalAilments.Reconcile(Get);
+        conn.ElementalAilments.Reconcile(WithEnduranceAilmentImmunity(conn, Get));
         var ailments = conn.ElementalAilments.Snapshot(conn.Clock.Elapsed.TotalSeconds);
         var finalInputs = tailInputs with
         {

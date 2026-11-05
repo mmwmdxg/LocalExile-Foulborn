@@ -96,7 +96,7 @@ static partial class Game
         var stats = CharacterPlayerStats(conn);
         int Get(string name) => Stats.Key(name) is uint key ? stats.GetValueOrDefault(key) : 0;
         conn.Phasing = UtilityFlasks.Phasing(UtilityStats(conn, Get));
-        conn.ElementalAilments.Reconcile(Get);
+        conn.ElementalAilments.Reconcile(WithEnduranceAilmentImmunity(conn, Get));
         conn.ApplyMovementSpeed();
     }
 
