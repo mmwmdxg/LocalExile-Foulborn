@@ -118,9 +118,17 @@ static class CurrencyEffects
 
     /// <summary>Armourer's Scrap: +1% quality on an armour piece (any rarity), up to 20%; the client derives the higher
     /// armour / evasion / energy shield from the quality. Refused for other items or at 20%.</summary>
-    public static Item? ArmourerScrap(Item item) =>
-        !item.Components.Contains("Armour") || !item.Components.Contains("Quality") || item.Quality >= MaximumQuality ? null
+    public static Item? ArmourerScrap(Item item, bool allowCorrupted = false) =>
+        !item.Components.Contains("Armour") || !item.Components.Contains("Quality") ||
+        (item.Corrupted && !allowCorrupted) || item.Quality >= MaximumQuality ? null
             : item with { Quality = (byte)(item.Quality + 1) };
+
+    public const string TaintedArmourersScrap = "Metadata/Items/Currency/CurrencyHellscapeArmourQuality";
+
+    /// <summary>Tainted Armourer's Scrap: the scrap on an already corrupted armour piece (the ordinary scrap refuses
+    /// corrupted items).</summary>
+    public static Item? TaintedScrap(Item item) =>
+        item.Corrupted ? ArmourerScrap(item, allowCorrupted: true) : null;
 
     public const string VaalOrb = "Metadata/Items/Currency/CurrencyCorrupt";
 
@@ -330,9 +338,16 @@ static class CurrencyEffects
 
     /// <summary>Blacksmith's Whetstone: +1% quality on a weapon (any rarity), up to 20%; the client derives the higher
     /// physical damage from the quality. Refused for other items or at 20%.</summary>
-    public static Item? Whetstone(Item item) =>
-        !item.Components.Contains("Weapon") || !item.Components.Contains("Quality") || item.Quality >= MaximumQuality ? null
+    public static Item? Whetstone(Item item, bool allowCorrupted = false) =>
+        !item.Components.Contains("Weapon") || !item.Components.Contains("Quality") ||
+        (item.Corrupted && !allowCorrupted) || item.Quality >= MaximumQuality ? null
             : item with { Quality = (byte)(item.Quality + 1) };
+
+    public const string TaintedWhetstone = "Metadata/Items/Currency/CurrencyHellscapeWeaponQuality";
+
+    /// <summary>Tainted Blacksmith's Whetstone: the whetstone on an already corrupted weapon.</summary>
+    public static Item? TaintedWhetstoneItem(Item item) =>
+        item.Corrupted ? Whetstone(item, allowCorrupted: true) : null;
 
     /// <summary>Orb of Alchemy: a modifiable normal item becomes an identified rare one with 4-6 new weighted
     /// affixes (CoE's 2/3, 1/4, 1/12) and a rare name. Flasks are magic-only; unknown/unmodifiable bases, non-normal

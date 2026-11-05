@@ -991,6 +991,8 @@ static partial class Game
                     ? CurrencyEffects.EldritchEmber(target, emberType, emberTier, RollsFor(conn), random)
                     : null,
             CurrencyEffects.ArmourersScrap => CurrencyEffects.ArmourerScrap(target),
+            CurrencyEffects.TaintedArmourersScrap => CurrencyEffects.TaintedScrap(target),
+            CurrencyEffects.TaintedWhetstone => CurrencyEffects.TaintedWhetstoneItem(target),
             CurrencyEffects.SacredOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } defenceType
                 ? CurrencyEffects.Sacred(target, ItemsFor(conn).Defences(defenceType), random) : null,
             CurrencyEffects.BlacksmithsWhetstone => CurrencyEffects.Whetstone(target),

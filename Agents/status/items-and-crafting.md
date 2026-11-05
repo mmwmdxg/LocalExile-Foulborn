@@ -375,8 +375,9 @@ Part of [Status](../Status.md); what to build next in this area is in
   ordinary Augmentation/Regal/Exalted rules; the higher-tier modifier weighting is not modelled; verified live 2026-11-05.
 - **Tainted Chaos and Tainted Exalted Orbs** (`CurrencyHellscapeRerollRare`, `CurrencyHellscapeAddModToRare`): the
   ordinary reroll and one-more-affix rules, applied only to an already corrupted rare item (the ordinary orbs refuse
-  those). Gateway-side; native check pending. Tainted Chromatic/Jeweller's/Fusing, Armourer's/Whetstone and the Mythic
-  upgrade remain unmodelled.
+  those). Tainted Armourer's Scrap and Tainted Blacksmith's Whetstone likewise add quality to an already corrupted
+  armour/weapon (the ordinary scrap and whetstone now refuse corrupted items). Gateway-side; native check pending.
+  Tainted Chromatic/Jeweller's/Fusing and the Mythic upgrade remain unmodelled.
 - **Foulborn (穢生) items:** Mods component flag bit 9. The client prefixes the unique's name, draws the purple
   header icons and mutated art, and labels `MutatedUnique*` modifiers "Foulborn Unique Modifier". `/item_state
   foulborn` toggles it and the save keeps it; nothing in play creates Foulborn items yet, and the mod-replacement
