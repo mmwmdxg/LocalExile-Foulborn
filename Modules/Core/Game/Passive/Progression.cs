@@ -566,7 +566,8 @@ static partial class Game
         var weapons = WeaponProfileFor(conn);
         var activeWeapon = WeaponProfileFor(conn, activeSet: true);
         var bonus = PassiveBonus(sources, weapons, snapshot.Attributes,
-            CursedAt(conn, conn.Clock.Elapsed.TotalSeconds), conn.FlaskGrounds.PlayerOnConsecrated);
+            CursedAt(conn, conn.Clock.Elapsed.TotalSeconds), conn.FlaskGrounds.PlayerOnConsecrated,
+            conn.PlayerLife * 100L <= conn.PlayerMaxLife * 35L);
         int EquipmentInput(string name) => Stats.Key(name) is uint key
             ? conn.PlayerStats.TryGetValue(key, out int value) ? value : sources.GetValueOrDefault(key) : 0;
         var gear = EquippedBaseDefences(conn, EquipmentInput);
@@ -775,7 +776,7 @@ static partial class Game
     // block nodes when a shield is equipped, critical strike chance and multiplier, and reservation efficiency and aura
     // effect.
     internal static CharacterStats.Bonus PassiveBonus(Dictionary<uint, int> stats, WeaponProfile weapons, AttributeModifiers attributes,
-        bool cursed = false, bool onConsecrated = false)
+        bool cursed = false, bool onConsecrated = false, bool lowLife = false)
     {
         int Get(string name) => Stats.Key(name) is uint k ? stats.GetValueOrDefault(k) : 0;
         int allRes = Get("base_resist_all_elements_%");
@@ -843,7 +844,9 @@ static partial class Game
         // the hit's own target at the roll). Other conditional accuracy stays unmodelled. Unarmed attacks count as dual
         // wielding, as they do for attack speed.
         long accuracyFlat = AccuracyRating.Flat(weapons, name => Get(name));
-        long accuracyPct = AccuracyRating.Increased(weapons, name => Get(name));
+        // Last Resort: increased accuracy while on low life (the caller passes the 35% test).
+        long accuracyPct = AccuracyRating.Increased(weapons, name => Get(name))
+            + (lowLife ? Get("accuracy_rating_+%_when_on_low_life") : 0);
         // The Accuracy Mastery's two target-conditional effects (11-skills.md panels): final "more" accuracy for a hit's
         // own target, which TargetAccuracy applies at the roll. Kept out of the additive pools, so the panel and
         // /accuracy keep showing only the unconditional rating and never claim a target condition statically.
