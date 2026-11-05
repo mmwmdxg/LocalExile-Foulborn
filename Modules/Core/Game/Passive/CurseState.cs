@@ -37,7 +37,18 @@ static partial class Game
         else state.Active.Add((kind, until));
         int extra = Stats.Key("number_of_additional_curses_allowed") is uint key && conn.PlayerStats.TryGetValue(key, out int value)
             ? Math.Max(0, value) : 0;
-        int cap = 1 + extra;
+        // number_of_additional_curses_allowed_while_at_maximum_power_charges (a third slot at full charges).
+        if (Stats.Key("number_of_additional_curses_allowed_while_at_maximum_power_charges") is uint maxKey
+            && conn.PlayerStats.TryGetValue(maxKey, out int maxExtra) && maxExtra > 0)
+        {
+            lock (conn.Monsters)
+            {
+                var session = ChargesOf(conn);
+                var limits = session.Limits(ChargeType.Power);
+                if (limits.Maximum > 0 && session.Effective(ChargeType.Power) >= limits.Maximum) extra += maxExtra;
+            }
+        }
+        int cap = 1 + Math.Max(0, extra);
         while (state.Active.Count > cap) state.Active.RemoveAt(0);
     }
 
