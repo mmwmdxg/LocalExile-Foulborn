@@ -21,6 +21,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | Doryani's Prototype: armour applies to lightning damage taken, your lightning resistance no longer applies to it, and nearby enemies use your lightning resistance. | `PlayerHitMitigation.ArmourPercent`, `Player.Resistance`, `MonsterMods` |
 | Items | The Brass Dome: critical strikes against the character deal no extra damage. | `MonsterMods.SelfCriticalReduction` |
 | Skills | `always_ignite` now forces an ignite on any fire-damage hit (the chance roll is skipped). | `MonsterIgnites.IgniteFromHit` |
+| Items | `chaos_damage_does_not_bypass_energy_shield` (Shavronne's Wrappings and kin) lets the shield absorb chaos hits. | `Antiquarian.DamagePlayerHit` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

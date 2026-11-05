@@ -54,8 +54,10 @@ static partial class Game
         // Ordered absorption keeps chaos bypassing ES. The supported shared Ward bypass is applied per component.
         int nonChaosEligible = nonChaos - (int)((long)nonChaos * Math.Clamp(Get("base_damage_bypass_ward_%"), 0, 100) / 100);
         int nonChaosAbsorbed = Math.Min(nonChaosEligible, absorbed);
+        // Shavronne's Wrappings and its kin (chaos_damage_does_not_bypass_energy_shield) let the shield absorb chaos.
+        bool chaosBypasses = Get("chaos_damage_does_not_bypass_energy_shield") == 0;
         int lifeDamage = conn.EnergyShield.Damage(nonChaos - nonChaosAbsorbed, false, now)
-            + conn.EnergyShield.Damage(Math.Max(0, chaos - (absorbed - nonChaosAbsorbed)), true, now);
+            + conn.EnergyShield.Damage(Math.Max(0, chaos - (absorbed - nonChaosAbsorbed)), chaosBypasses, now);
         if (!wasBroken && conn.Ward.Broken
             && conn.Antiquarian.GrantAdrenaline(now, Get(AntiquarianEffects.AdrenalineSource)))
         {
