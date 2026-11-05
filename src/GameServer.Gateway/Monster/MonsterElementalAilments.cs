@@ -119,10 +119,12 @@ sealed class MonsterElementalAilments
             MoreTaken = attacker("enemies_chilled_by_hits_take_damage_increased_by_chill_effect") != 0,
             LessDealt = attacker("enemies_chilled_by_hits_deal_damage_lessened_by_chill_effect") != 0,
         });
-        if (cold > 0 && (critical || RandomRolls.Chance(attacker("chance_to_freeze_%"), 100, random)))
+        if (cold > 0 && (critical || attacker("always_freeze") != 0
+            || RandomRolls.Chance(attacker("chance_to_freeze_%"), 100, random)))
             Add(new(Kind.Freeze, now, now + Math.Min(3, 6 * cold / threshold), 100));
         double shocking = lightning + (attacker("cold_damage_can_shock") != 0 ? cold : 0);
-        if (shocking > 0 && (critical || RandomRolls.Chance(attacker("chance_to_shock_%"), 100, random)))
+        if (shocking > 0 && (critical || attacker("always_shock") != 0
+            || RandomRolls.Chance(attacker("chance_to_shock_%"), 100, random)))
             Add(new(Kind.Shock, now, now + 2, Effectiveness(shocking, threshold, EffectModifier(Kind.Shock, attacker, target), 50))
                 { Spread = SpreadRadius(attacker, area) });
         return added;
