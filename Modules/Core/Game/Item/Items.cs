@@ -1009,9 +1009,36 @@ static partial class Game
             CurrencyEffects.FracturingOrb => CurrencyEffects.Fracture(target, RollsFor(conn), random),
             CurrencyEffects.VaalOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } vaalType
                 ? CurrencyEffects.Vaal(target, vaalType, ItemsFor(conn).Requirements(vaalType), RollsFor(conn), random) : null,
+            // The Volatile Vaal Orb: the unique's modifier values are rerolled like a Divine Orb's and the item is
+            // corrupted in the same use. Corrupted and mirrored items are refused.
+            CurrencyEffects.VolatileVaalOrb => VolatileVaalMax(conn, target),
             _ when isEssence => EssencesFor(conn).Apply(type!.Hash, target, random),
             _ => null,
         };
+    }
+
+    /// <summary>The Volatile Vaal Orb (無常瓦爾寶珠): every modifier of a changeable unique is set to the top of its roll
+    /// (the unique's curated range when it has one, else the Mods.dat range) and the item is corrupted. Null for an
+    /// item that is not a unique, is already corrupted, or is mirrored.</summary>
+    static Item? VolatileVaalMax(ClientState conn, Item target)
+    {
+        if (target.Rarity != ItemRarity.Unique || target.Corrupted || target.Mirrored) return null;
+        var rolls = UniquesFor(conn).RollsOf(target);
+        var catalog = ItemsFor(conn).Mods;
+        var mods = new List<ItemMod>(target.Mods.Count);
+        foreach (var m in target.Mods)
+        {
+            if (catalog.ByHash(m.Hash) is not { } row) { mods.Add(m); continue; }
+            var tops = row.MaxValues();
+            var values = new List<int>(m.Values.Count);
+            for (int i = 0; i < m.Values.Count; i++)
+            {
+                values.Add(rolls?.Invoke(row, m.Section, i) is { } range ? range.Max
+                    : i < tops.Count ? tops[i] : m.Values[i]);
+            }
+            mods.Add(m with { Values = values });
+        }
+        return target with { Mods = mods, Corrupted = true };
     }
 
     // C→S 0x71: an item used on another one. A Scroll of Wisdom identifies an unidentified item (its explicit mods and rare

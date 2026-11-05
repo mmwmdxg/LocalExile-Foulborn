@@ -21,8 +21,18 @@ public class ChanceTests
         Assert.Equal(item.TypeHash, unique.TypeHash);
         Assert.Equal(70, unique.ItemLevel);
 
-        // A rare item and a base without uniques are refused before spending.
-        Assert.Null(uniques.Chance(item with { Rarity = ItemRarity.Rare }, _ => 1, new Random(3)));
+        // A rare item is accepted too, and its enchantment survives: the Tailoring Orb's Heist enchant is what a
+        // rare body armour is made for, so chancing it into a unique must keep that one modifier.
+        var enchant = Program.Items.Mods.ById("ArmourEnchantmentHeistLifeEffectSocketPenalty1")!;
+        var rare = item with
+        {
+            Rarity = ItemRarity.Rare,
+            Mods = [new ItemMod(ModSection.Enchant, enchant.Hash, [15, -3])],
+        };
+        var fromRare = uniques.Chance(rare, name => name == definition.Name ? 1 : 0, new Random(3));
+        Assert.NotNull(fromRare);
+        Assert.Equal(ItemRarity.Unique, fromRare!.Rarity);
+        Assert.Contains(fromRare.Mods, m => m.Section == ModSection.Enchant && m.Hash == enchant.Hash);
         var noUniques = Program.Items.All.First(t => t.Supported
             && t.Class is "Ring" or "Amulet" or "Belt" or "Body Armour" or "Shield" or "Helmet" or "Gloves" or "Boots"
             && !uniques.All.Any(d => Program.Items.Find(d.BaseTypeId)?.Hash == t.Hash));

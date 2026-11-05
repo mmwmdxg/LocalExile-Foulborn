@@ -99,7 +99,12 @@ sealed class UniqueCatalog(ItemCatalog items, string folder = "data")
             mods.AddRange(Rolled(definition, implicits, ModSection.Implicit, random));
         }
         mods.AddRange(Rolled(definition, definition.Mods, ModSection.Explicit, random));
-        return item with { Mods = mods };
+        var created = item with { Mods = mods };
+        // "HasNoSockets" (Kaom's Heart, Kaom's Roots) means the item has no sockets at all; the base's default sockets
+        // were left on it and the client drew them next to the "no sockets" line.
+        return items.Mods.ById("HasNoSockets") is { } noSockets && mods.Any(m => m.Hash == noSockets.Hash)
+            ? created with { Sockets = [], Links = [] }
+            : created;
     }
 
     IEnumerable<ItemMod> Rolled(Definition definition, string[] ids, ModSection section, Random random)
@@ -126,14 +131,19 @@ sealed class UniqueCatalog(ItemCatalog items, string folder = "data")
     /// returns the item unchanged, because the orb is still spent. Bases without uniques are refused.</summary>
     public Item? Chance(Item item, Func<string, double> weight, Random random)
     {
-        if (item.Rarity != ItemRarity.Normal || item.Corrupted || item.Mirrored ||
+        if (item.Rarity is not (ItemRarity.Normal or ItemRarity.Rare) || item.Corrupted || item.Mirrored ||
             items.ByHash(item.TypeHash) is not { } type || !ItemDrops.EquipmentClasses.Contains(type.Class)) return null;
         var candidates = All.Where(d => !d.Corrupted && !d.Name.StartsWith("Replica ", StringComparison.Ordinal)
             && weight(d.Name) is > 0 && items.Find(d.BaseTypeId)?.Hash == item.TypeHash).ToList();
         if (candidates.Count == 0) return null;
         double total = All.Sum(d => weight(d.Name) is > 0 and var w ? w : 0);
         double share = candidates.Sum(d => weight(d.Name));
-        if (total <= 0 || random.NextDouble() * total >= share) return item;
+        // Game_CHANCE_SUCCESS_PERCENT (dev, 0..100) sets the Orb of Chance's success rate; unset means certain,
+        // because the drop-weight share is well under one percent and this is a local server to play on.
+        int forced = int.TryParse(Environment.GetEnvironmentVariable("Game_CHANCE_SUCCESS_PERCENT"), out int p)
+            ? Math.Clamp(p, 0, 100) : 100;
+        bool success = forced >= 100 || (forced > 0 && random.Next(100) < forced);
+        if (total <= 0 || !success) return item;
         double pick = random.NextDouble() * share;
         Definition chosen = candidates[^1];
         foreach (var definition in candidates)
@@ -141,6 +151,9 @@ sealed class UniqueCatalog(ItemCatalog items, string folder = "data")
             if (pick < weight(definition.Name)) { chosen = definition; break; }
             pick -= weight(definition.Name);
         }
+        // The enchantment survives the change (the Tailoring Orb's Heist enchant is what a rare body armour is made
+        // for); every other modifier is the unique's.
+        var enchants = item.Mods.Where(m => m.Section == ModSection.Enchant).ToList();
         return Create(chosen, random) is { } created ? created with
         {
             ItemLevel = item.ItemLevel,
@@ -149,6 +162,7 @@ sealed class UniqueCatalog(ItemCatalog items, string folder = "data")
             Sockets = item.Sockets,
             Links = item.Links,
             Identified = true,
+            Mods = [.. enchants, .. created.Mods],
         } : item;
     }
 

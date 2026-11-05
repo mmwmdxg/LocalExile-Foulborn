@@ -281,7 +281,8 @@ sealed class ItemRolls(ItemCatalog catalog, string folder = "data", SystemSettin
             sockets[at] = sockets[at] with { Colour = SocketColours.Colour(requirements, random) };
             result = result with { Sockets = sockets };
         }
-        return result with { Corrupted = true, Identified = true };
+        // Corruption also raises a Foulborn item's Mutated modifiers (see ItemStates.Corrupt).
+        return ItemStates.Corrupt(result, catalog.Mods) with { Identified = true };
     }
 
     /// <summary>The item with this rarity and freshly rolled affixes (its implicits and other lists kept, earlier

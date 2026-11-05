@@ -321,6 +321,19 @@ static class CommandsFeature
             await Send(remote, stream, ciphers, InstanceItems.InventoryChange(PlayerInventories.InventoryId(PlayerInventories.MainInventory),
                 items.NextRevision(PlayerInventories.MainInventory), [], added), $"0x00bf inventory 1: /item {type} × {added.Count}");
         }, "item")
+        .Add("item_copy", "/item_copy [mirrored] (dev: a duplicate of the held item, into the inventory; mirrored marks it as a copy that cannot change, so leave it out to keep using currency on the copy)", async args =>
+        {
+            bool asMirror = args.Length > 0 && args[0].Equals("mirrored", StringComparison.OrdinalIgnoreCase);
+            if (ItemsOf(conn).Items(PlayerInventories.Cursor) is not [var held, ..]) { await conn.Commands!.Reply("Hold an item first"); return; }
+            var items = ItemsOf(conn);
+            if (ItemsFor(conn).ByHash(held.Item.TypeHash) is not { } type) { await conn.Commands!.Reply("Unknown base type"); return; }
+            if (items.FreeCell(PlayerInventories.MainInventory, type.Width, type.Height, ShapeOf) is not { } cell) { await conn.Commands!.Reply("No room in the inventory"); return; }
+            var copy = asMirror ? held.Item with { Mirrored = true } : held.Item;
+            var added = items.Put(PlayerInventories.MainInventory, new InventoryItem(items.NewItemId(), cell.X, cell.Y, copy));
+            await Send(remote, stream, ciphers, InstanceItems.InventoryChange(PlayerInventories.InventoryId(PlayerInventories.MainInventory),
+                items.NextRevision(PlayerInventories.MainInventory), [], [added]), $"0x00bf inventory 1: /item_copy {type}");
+            await conn.Commands!.Reply($"Duplicated {type.Name}");
+        })
         .Add("item_give", "/item_give <item as JSON> (dev: an item the launcher's item crafter composed, with its mods, into the inventory; Agents/docs/dev/item-crafter.md)", async args =>
         {
             if (args.Length == 0) throw new ArgumentException("which item?");
@@ -946,8 +959,9 @@ static class CommandsFeature
         {
             if (ItemsOf(conn).Items(PlayerInventories.Cursor) is not [var held, ..]) { await conn.Commands!.Reply("Hold an item first"); return; }
             if (args.Length == 0) { await conn.Commands!.Reply(ItemStates.Describe(held.Item)); return; }
-            var result = args.Aggregate(held.Item, (item, state) => ItemStates.Toggle(item, state) ?? throw new ArgumentException($"no state {state}"));
-            await ChangeHeldItem(remote, stream, ciphers, conn, i => args.Aggregate(i, (item, state) => ItemStates.Toggle(item, state)!),
+            var mods = ItemsFor(conn).Mods;
+            var result = args.Aggregate(held.Item, (item, state) => ItemStates.Toggle(item, state, mods) ?? throw new ArgumentException($"no state {state}"));
+            await ChangeHeldItem(remote, stream, ciphers, conn, i => args.Aggregate(i, (item, state) => ItemStates.Toggle(item, state, mods)!),
                 ItemStates.Describe(result), args.Any(ItemStates.NeedsMods) ? "Mods" : "Base");
         })
         .Add("rarity", "/rarity <normal|magic|rare|unique> [unid] (the held item)", async args =>

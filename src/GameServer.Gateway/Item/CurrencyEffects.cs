@@ -110,6 +110,10 @@ static class CurrencyEffects
 
     public const string VaalOrb = "Metadata/Items/Currency/CurrencyCorrupt";
 
+    /// <summary>The Volatile Vaal Orb ("無常瓦爾寶珠"/"无常瓦尔宝珠"): rerolls a unique item's modifier values and
+    /// corrupts it in the same use.</summary>
+    public const string VolatileVaalOrb = "Metadata/Items/Currency/CurrencyHellscapeModValues";
+
     /// <summary>Vaal Orb, the documented LocalExile rule: a modifiable weapon, armour piece or jewellery (ring,
     /// amulet, belt) that is not corrupted/mirrored is always corrupted. Normal/magic become rare; rare items replace
     /// 1-5 affixes or reroll all of them; a unique keeps its modifiers and only takes the corrupted state (the official
