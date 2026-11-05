@@ -901,7 +901,10 @@ static partial class Game
             Evasion: Get("base_evasion_rating"), EvasionPct: evasionPct,
             EvasionWhileMovingPct: Get("evasion_rating_+%_while_moving"),
             EvasionPctPerTenIntelligence: Get(AttributeDefenceSources.EvasionPerTenIntelligence),
-            SharedDefencesPct: defencesPct, IronReflexes: Get("keystone_iron_reflexes") != 0,
+            SharedDefencesPct: defencesPct,
+            // Iron Reflexes, or its gain-while-at-maximum-frenzy variant (Daresso's Defiance style rings).
+            IronReflexes: Get("keystone_iron_reflexes") != 0
+                || maxFrenzy && Get("gain_iron_reflexes_while_at_maximum_frenzy_charges") != 0,
             MentalConditioning: Get(PowerOfPurpose.RawFlag) != 0,
             ChaosInoculation: Get("keystone_chaos_inoculation") != 0,
             ArmourAppliesToChaosDamage: Get(PlayerHitMitigation.ArmourAppliesToChaos) != 0,

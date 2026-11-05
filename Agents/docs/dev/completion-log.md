@@ -33,6 +33,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | Malachai's Loop: `add_power_charge_on_skill_hit_%` was missing from the charge rules and now rolls on a hit. | `ChargeGains` |
 | Items | Last Resort: `accuracy_rating_+%_when_on_low_life` joins the accuracy pool while life is at most 35% (the low-life flag is passed into PassiveBonus). | `Progression.PassiveBonus` |
 | Items | Ahn's Might: `accuracy_rating_while_at_maximum_frenzy_charges` applies while the frenzy charges are full. | `Progression.PassiveBonus` |
+| Items | `gain_iron_reflexes_while_at_maximum_frenzy_charges` grants Iron Reflexes while frenzy charges are full. | `Progression.PassiveBonus` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |
