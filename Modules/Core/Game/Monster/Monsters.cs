@@ -705,6 +705,9 @@ static partial class Game
             (rolled, baseHit) = (rolled.Convert(auraConversion), baseHit.Convert(auraConversion));
         // Glacial Wave: less damage dealt is all of it (PoB Damage MORE), so the ignite its crit puts on you too.
         double lessened = m.Ailments.ChillDamageDealtFactor(now);
+        // Occultist: a nearby chilled enemy deals less hit damage; the aura only counts while a chill is active.
+        if (m.HitDamageWhileChilledPct != 0 && m.Ailments.Chilled(now))
+            lessened *= Math.Max(0, 1 + m.HitDamageWhileChilledPct / 100.0);
         if (lessened < 1) (rolled, baseHit) = (rolled.Scale(lessened), baseHit.Scale(lessened));
         var mitigated = gambler.MitigateIncomingHit(rolled, type =>
             new DamageModel.ResistanceValue(Resistance(conn, type), MaxResistance(conn, type)), conn.IncomingHitRandom);

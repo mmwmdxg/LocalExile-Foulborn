@@ -23,6 +23,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Currency | Tainted Chromatic, Fusing and Jeweller's Orbs reroll colours/links/socket count on corrupted items; ordinary socket currencies now refuse them. | `CurrencyEffects.TaintedChromatic/TaintedFusing/TaintedJewellers` |
 | Currency | Tainted Mythic Orb upgrades an already corrupted normal/rare item to a same-base unique. | `CurrencyEffects.TaintedMythic`, `UniqueCatalog.Chance` |
 | Skills | Occultist nearby-enemy auras now reduce cold and chaos resistance, fed through a new monster field into the hit resistance | `EnemyDebuffs.Rules`, `MonsterMods`, `ClientState` |
+| Skills | Occultist's nearby chilled enemies deal 10% less hit damage (applied only while the monster is chilled). | `Monsters.MonsterSwing`, `MonsterElementalAilments.Chilled` |
 
 ## Parked for the single live-verification pass
 

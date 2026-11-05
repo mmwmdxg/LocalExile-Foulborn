@@ -829,7 +829,8 @@ This is a research baseline, not new live skill acceptance or complete native/se
   The Augury of Penitence trees (Inquisitor and Scion) now apply their increased elemental damage taken to monsters in
   the radius; their final-damage stat has no consumer and is left unapplied. The Occultist nearby-enemy auras reduce
   cold and chaos resistance through `SpawnedMonster.AuraResistanceFromPlayer`, read by `MonsterHitResistance`; their
-  life-regeneration stat has no consumer.
+  life-regeneration stat has no consumer. Its "nearby chilled enemies deal less damage" applies to a chilled monster's
+  swings through `SpawnedMonster.HitDamageWhileChilledPct` (the hindered damage-over-time stat still has no consumer).
   Auras with stats the server does not apply yet are neither sent nor applied.
   Gateway coverage; not yet checked with the real client.
   Code: `PassiveBuffAuras.cs`, `MonsterSwing`.

@@ -44,6 +44,9 @@ sealed class MonsterElementalAilments
     /// chill's effect (from any source, wiki Glacial Wave; PoB CalcPerform DamageTaken INC).</summary>
     public double ChillDamageTakenPct(double now) => Active(Kind.Chill, now).Any(e => e.MoreTaken) ? Magnitude(Kind.Chill, now) : 0;
 
+    /// <summary>Whether any chill is active, whatever its source (Occultist's nearby chilled enemies deal less damage).</summary>
+    public bool Chilled(double now) => Magnitude(Kind.Chill, now) > 0;
+
     /// <summary>Glacial Wave: and deals less damage by half that effect (PoB CalcPerform Damage MORE −effect / 2).</summary>
     public double ChillDamageDealtFactor(double now) =>
         Active(Kind.Chill, now).Any(e => e.LessDealt) ? 1 - Magnitude(Kind.Chill, now) / 200 : 1;

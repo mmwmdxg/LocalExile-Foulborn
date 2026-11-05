@@ -48,6 +48,8 @@ static class PassiveBuffAuras
         "ScionAuguryOfPenitence", "ScionAuguryOfPenitenceHardMode",
         // Occultist's nearby enemies: reduced cold and chaos resistance (their life regeneration has no consumer).
         "OccultistNearbyEnemiesColdChaosResistLifeRegen", "OccultistNearbyEnemiesColdChaosResistLifeRegenHardMode",
+        // Occultist: nearby chilled enemies deal less hit damage (its own chill requirement is read by the swing).
+        "OccultistNearbyChilledEnemiesReducedHitDamage",
     ];
 
     /// <summary>The passive blind aura: every enemy in it is Blinded (Game.Blinded).</summary>

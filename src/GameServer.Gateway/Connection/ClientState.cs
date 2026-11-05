@@ -145,6 +145,9 @@ sealed class SpawnedMonster(string label, WalkEstimator walk, int aggroRange, in
     // The player's passive enemy auras' resistance reductions (Occultist's nearby enemies: cold and chaos), summed
     // from the auras this monster stands in; its hits read them (MonsterHitResistance).
     public (int Cold, int Chaos) AuraResistanceFromPlayer;
+    // The player's auras that reduce the damage a chilled monster deals (Occultist: hit_damage_+%_while_chilled), read
+    // by its swing when it is chilled.
+    public int HitDamageWhileChilledPct;
     // Pride's more Physical Damage taken, ramped by the time this monster has stayed in the aura (EnemyDebuffsTick).
     public double PrideSince = double.NaN;
     public double PridePhysicalMore;
