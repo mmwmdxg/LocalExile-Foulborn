@@ -330,7 +330,7 @@ static class FlaskGrounds
         }
 
         /// <summary>Whether the player is on consecrated ground now (the buff this state placed).</summary>
-        public bool OnConsecrated
+        public bool PlayerOnConsecrated
         {
             get { lock (_lock) return _consecrated is not null; }
         }

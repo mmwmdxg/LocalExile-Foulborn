@@ -725,8 +725,11 @@ static partial class Game
         foreach (var (type, range) in mitigated.Components)
         {
             int value = immune.Contains(type) ? 0 : (int)Math.Round(range.Min);
+            // Gorgon's Gaze: additional physical damage reduction while the player is walking.
+            int physicalReduction = reduction.Physical + (type == DamageType.Physical && now < conn.Walk.ArrivesAt
+                ? StatOf("additional_physical_damage_reduction_%_while_moving") : 0);
             value = PlayerHitMitigation.AfterResistance(conn.Pools, type, value,
-                reduction.Physical, reduction.Elemental, armour.EffectiveArmour,
+                physicalReduction, reduction.Elemental, armour.EffectiveArmour,
                 PlayerHitMitigation.ArmourPercent(conn.Pools, type, StatOf));
             if (type == DamageType.Physical)
                 value = AntiquarianEffects.RangedPhysical(value, a.Ranged, StatOf);
