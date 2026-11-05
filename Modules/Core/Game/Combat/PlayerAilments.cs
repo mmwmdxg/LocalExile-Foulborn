@@ -108,8 +108,10 @@ static partial class Game
             if (!flagged) flagged = CharacterStatSources(conn).Stats.GetValueOrDefault(key) != 0;
             if (flagged) factor = Math.Max(factor, 1);
         }
-        // Onslaught: +20% action speed while the buff is up.
-        if (OnslaughtActive(conn, conn.Clock.Elapsed.TotalSeconds)) factor *= 1.2;
+        // Onslaught: +20% action speed while the buff is up. Temporal Chains: 20% less while cursed with it.
+        double now = conn.Clock.Elapsed.TotalSeconds;
+        if (OnslaughtActive(conn, now)) factor *= 1.2;
+        if (CurseAt(conn, now) == CurseKind.TemporalChains) factor *= 0.8;
         return factor;
     }
 }

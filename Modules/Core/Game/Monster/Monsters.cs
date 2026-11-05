@@ -596,13 +596,19 @@ static partial class Game
         ["curse_on_hit_level_vulnerability", "curse_on_hit_level_enfeeble", "curse_on_hit_level_temporal_chains",
          "curse_on_hit_level_flammability", "curse_on_hit_level_frostbite", "curse_on_hit_level_conductivity"];
 
-    static bool CurseOnHit(SpawnedMonster m, double now)
+    static CurseKind CurseOnHit(SpawnedMonster m, double now)
     {
-        foreach (string name in CurseOnHitGuaranteed)
-            if (m.Mods.Effects[name] > 0) return true;
-        foreach (string name in CurseOnHitChance)
-            if (m.Mods.Effects[name] is > 0 and var chance && Random.Shared.Next(100) < chance) return true;
-        return false;
+        static CurseKind Roll(SpawnedMonster monster, string guaranteed, string chance, CurseKind kind)
+        {
+            if (monster.Mods.Effects[guaranteed] > 0) return kind;
+            int chancePct = monster.Mods.Effects[chance];
+            return chancePct > 0 && Random.Shared.Next(100) < chancePct ? kind : CurseKind.None;
+        }
+        CurseKind result = Roll(m, "curse_on_hit_level_vulnerability", "curse_on_hit_%_vulnerability", CurseKind.Vulnerability);
+        if (result != CurseKind.None) return result;
+        result = Roll(m, "curse_on_hit_level_temporal_chains", "curse_on_hit_%_temporal_chains", CurseKind.TemporalChains);
+        if (result != CurseKind.None) return result;
+        return Roll(m, "curse_on_hit_level_enfeeble", "curse_on_hit_%_enfeeble", CurseKind.Enfeeble);
     }
 
     internal static async Task MonsterSwing(string remote, NetworkStream stream, ConnectionCiphers ciphers, ClientState conn, uint id,
@@ -756,6 +762,12 @@ static partial class Game
             if (type == DamageType.Chaos) chaosDamage += value;
             damage += value;
         }
+        // Vulnerability (a monster's curse-on-hit): 20% more damage taken while it lasts.
+        if (CurseAt(conn, now) == CurseKind.Vulnerability)
+        {
+            damage = (int)Math.Ceiling(damage * 1.2);
+            chaosDamage = (int)Math.Ceiling(chaosDamage * 1.2);
+        }
         damage = FortificationDamageTaken(conn, damage);
         chaosDamage = FortificationDamageTaken(conn, chaosDamage);
         if (blocked) { damage = 0; chaosDamage = 0; }
@@ -776,8 +788,8 @@ static partial class Game
             monsterCritical, blocked, now, stats, source: id);
         // A monster's curse-on-hit affix puts the cursed state on the player for a few seconds, which the while_cursed
         // modifiers read (the curse's own effect is not modelled yet).
-        if (!blocked && CurseOnHit(m, now))
-            SetCursed(conn, now + 5);
+        if (!blocked && CurseOnHit(m, now) is var cursedKind and not CurseKind.None)
+            SetCursed(conn, now + 5, cursedKind);
         conn.RecentEnemyHits.Record(now);
         ChargesWhenHit(conn, blocked);
         // Brine Bound: a hit that lands, blocked too (blocking keeps the defender's when-hit effects, wiki

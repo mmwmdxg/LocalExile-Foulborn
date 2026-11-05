@@ -59,6 +59,8 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.15 | Vaal Pact only while at max endurance charges | Instant leech only with full endurance charges |
 | 3.16 | Rampage grant with max endurance charges | Rampage counter stays up while the charges are full |
 | 3.17 | Get hit by a monster with a curse-on-hit affix | Cursed state applies for 5 s (while_cursed modifiers change) |
+| 3.18 | Vulnerability curse on hit | 20% more damage taken while it lasts |
+| 3.19 | Temporal Chains curse on hit | Action speed drops 20% while it lasts |
 
 ## Reporting
 
