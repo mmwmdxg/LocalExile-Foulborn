@@ -33,7 +33,8 @@ static partial class Game
         if (baseFire <= 0 || attacker("never_ignite") != 0 || attacker("never_ignite_chill_freeze_shock") != 0
             || attacker("never_damaging_ailments") != 0) return null;
         int chance = attacker("base_chance_to_ignite_%") + attacker("chance_to_ignite_%") + attacker("chance_to_freeze_shock_ignite_%");
-        if (!critical && !RandomRolls.Chance(chance, 100, random)) return null;
+        // always_ignite (Berek's respite style items and skills) burns whenever the hit carries fire damage.
+        if (attacker("always_ignite") == 0 && !critical && !RandomRolls.Chance(chance, 100, random)) return null;
         double multiplier = 1 + (attacker("dot_multiplier_+") + attacker("fire_dot_multiplier_+") + attacker("ignite_dot_multiplier_+")
             + (critical ? CriticalAilmentDotMultiplier + attacker("critical_ailment_dot_multiplier_+") : 0)) / 100.0;
         var ignite = GameServer.Core.World.Ailments.Ignite(DamagePacket.Of(DamageType.Fire, baseFire, baseFire),
