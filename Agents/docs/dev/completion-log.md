@@ -19,6 +19,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Items | Replica Headhunter steals a magic monster's affixes at its 20% per-kill chance (Headhunter's rare path unchanged). | `UniqueBeltsFeature.StealMonsterMods`, `StolenMods` |
 | Items | Aegis Aurora: 2% of armour rating recovered as energy shield when blocking. | `SpiritChieftains.Rules.BlockRecovery` |
 | Items | Doryani's Prototype: armour applies to lightning damage taken, your lightning resistance no longer applies to it, and nearby enemies use your lightning resistance. | `PlayerHitMitigation.ArmourPercent`, `Player.Resistance`, `MonsterMods` |
+| Items | The Brass Dome: critical strikes against the character deal no extra damage. | `MonsterMods.SelfCriticalReduction` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |

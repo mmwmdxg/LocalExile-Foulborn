@@ -269,6 +269,8 @@ Part of [Status](../Status.md); what to build next in this area is in
   `PlayerHitMitigation.ArmourPercent`), and your lightning resistance no longer applies to lightning damage taken
   (`Player.Resistance`). Nearby enemies within 60 cells take their lightning resistance from the player
   (`SpawnedMonster.LightningResistanceOverride`; the 60-cell radius is an assumption, the item gives none).
+  The Brass Dome's `self_take_no_extra_damage_from_critical_strikes` removes a critical strike's whole extra part
+  (`MonsterMods.SelfCriticalReduction`). Svalinn's block luck already followed `base_block_luck`.
   Not yet: other uniques' mechanics and the "effects cannot be removed" backstop
   (`UniqueCatalog`, `Program.Mageblood`, `StolenMods`, `Program.UniqueBelts`;
   [13](../docs/protocol/13-items.md) §2e, §8a).

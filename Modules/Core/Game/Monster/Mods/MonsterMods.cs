@@ -120,9 +120,15 @@ static partial class Game
         mitigated.Select((type, range) => range.Scale(type == DamageType.Physical
             ? Math.Max(0, 1 - m.Mods.Effects.PhysicalReduction / 100.0) : 1)).Scale(m.Mods.Effects.DamageTaken(spell));
 
-    /// <summary>The player's base_self_critical_strike_multiplier_-% (critical strikes against them deal less extra damage).</summary>
-    internal static int SelfCriticalReduction(ClientState conn) =>
-        Stats.Key("base_self_critical_strike_multiplier_-%") is uint key ? CharacterPlayerStats(conn).GetValueOrDefault(key) : 0;
+    /// <summary>The player's base_self_critical_strike_multiplier_-% (critical strikes against them deal less extra
+    /// damage). The Brass Dome's self_take_no_extra_damage_from_critical_strikes removes the whole extra part instead.</summary>
+    internal static int SelfCriticalReduction(ClientState conn)
+    {
+        var stats = CharacterPlayerStats(conn);
+        if (Stats.Key("self_take_no_extra_damage_from_critical_strikes") is uint noExtraKey
+            && stats.GetValueOrDefault(noExtraKey) != 0) return MonsterModEffects.CriticalMultiplier - 100;
+        return Stats.Key("base_self_critical_strike_multiplier_-%") is uint key ? stats.GetValueOrDefault(key) : 0;
+    }
 
     /// <summary>Whether the monster blocks a hit of the player (Stalwart's monster_base_block_%: attacks only). Rolled
     /// before anything of the hit happens: a blocked hit has no damage, impale, flinch or hit message.</summary>
