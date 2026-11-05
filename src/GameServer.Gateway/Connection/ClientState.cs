@@ -142,6 +142,9 @@ sealed class SpawnedMonster(string label, WalkEstimator walk, int aggroRange, in
     public ushort TauntBuff;
     public readonly Dictionary<ushort, ushort> PlayerAuras = [];
     public (int All, int Elemental) TakenFromPlayer;
+    // The player's passive enemy auras' resistance reductions (Occultist's nearby enemies: cold and chaos), summed
+    // from the auras this monster stands in; its hits read them (MonsterHitResistance).
+    public (int Cold, int Chaos) AuraResistanceFromPlayer;
     // Pride's more Physical Damage taken, ramped by the time this monster has stayed in the aura (EnemyDebuffsTick).
     public double PrideSince = double.NaN;
     public double PridePhysicalMore;

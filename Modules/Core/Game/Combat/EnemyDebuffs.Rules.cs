@@ -60,6 +60,8 @@ static partial class Game
                 bool alive = conn.PlayerLife > 0;
                 var here = conn.Walk.Position(now);
                 uint? elementalKey = Stats.Key("elemental_damage_taken_+%");
+                uint? coldResistanceKey = Stats.Key("base_cold_damage_resistance_%");
+                uint? chaosResistanceKey = Stats.Key("base_chaos_damage_resistance_%");
                 // Pride is a skill aura whose effect is on enemies: a synthetic enemy aura carries its buff, and its ramp
                 // is kept per monster.
                 AuraCatalog.Aura? pride = conn.Auras.Values.FirstOrDefault(a => AuraCatalog.Family(a.EffectId) == "Pride");
@@ -104,7 +106,7 @@ static partial class Game
                                 m.PlayerAuras.Remove(definition);
                                 removed++;
                             }
-                    int elemental = 0;
+                    int elemental = 0, coldResistance = 0, chaosResistance = 0;
                     foreach (var aura in enemyAuras)
                     {
                         if (distance > aura.Radius) continue;
@@ -114,6 +116,8 @@ static partial class Game
                             added++;
                         }
                         elemental += aura.Stats.Where(s => s.Key == elementalKey).Sum(s => s.Value);
+                        coldResistance += aura.Stats.Where(s => s.Key == coldResistanceKey).Sum(s => s.Value);
+                        chaosResistance += aura.Stats.Where(s => s.Key == chaosResistanceKey).Sum(s => s.Value);
                     }
                     if (pride is not null && living && distance <= prideRadius)
                     {
@@ -126,6 +130,7 @@ static partial class Game
                         m.PridePhysicalMore = 0;
                     }
                     m.TakenFromPlayer = (taunted ? config.TauntedDamageTakenPct : 0, elemental);
+                    m.AuraResistanceFromPlayer = (coldResistance, chaosResistance);
                 }
                 int? radius = conn.PlayerLife > 0 ? blindRadius : null;
                 HashSet<uint> inside = radius is int r

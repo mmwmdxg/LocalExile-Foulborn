@@ -78,7 +78,13 @@ static partial class Game
         Penetration.PerType pen)
     {
         var resistance = HitMitigation.Resistance(Monsters, m.Variety, m.Level, type);
-        return resistance with { Value = resistance.Value + m.Mods.Effects.Resistance(type),
+        int aura = type switch
+        {
+            DamageType.Cold => m.AuraResistanceFromPlayer.Cold,
+            DamageType.Chaos => m.AuraResistanceFromPlayer.Chaos,
+            _ => 0,
+        };
+        return resistance with { Value = resistance.Value + m.Mods.Effects.Resistance(type) + aura,
             Maximum = MonsterModEffects.MaxResistance, Penetration = pen.Of(type) };
     }
 

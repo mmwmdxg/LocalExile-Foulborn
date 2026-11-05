@@ -827,7 +827,9 @@ This is a research baseline, not new live skill acceptance or complete native/se
 - Passive enemy auras: a passive's BuffTemplates enemy aura puts its buff on hostile monsters in its radius, and its
   hit conversion converts their hits (Born under Fire).
   The Augury of Penitence trees (Inquisitor and Scion) now apply their increased elemental damage taken to monsters in
-  the radius; their final-damage stat has no consumer and is left unapplied.
+  the radius; their final-damage stat has no consumer and is left unapplied. The Occultist nearby-enemy auras reduce
+  cold and chaos resistance through `SpawnedMonster.AuraResistanceFromPlayer`, read by `MonsterHitResistance`; their
+  life-regeneration stat has no consumer.
   Auras with stats the server does not apply yet are neither sent nor applied.
   Gateway coverage; not yet checked with the real client.
   Code: `PassiveBuffAuras.cs`, `MonsterSwing`.

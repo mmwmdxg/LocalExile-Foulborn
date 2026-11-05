@@ -22,6 +22,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |
 | Currency | Tainted Chromatic, Fusing and Jeweller's Orbs reroll colours/links/socket count on corrupted items; ordinary socket currencies now refuse them. | `CurrencyEffects.TaintedChromatic/TaintedFusing/TaintedJewellers` |
 | Currency | Tainted Mythic Orb upgrades an already corrupted normal/rare item to a same-base unique. | `CurrencyEffects.TaintedMythic`, `UniqueCatalog.Chance` |
+| Skills | Occultist nearby-enemy auras now reduce cold and chaos resistance, fed through a new monster field into the hit resistance | `EnemyDebuffs.Rules`, `MonsterMods`, `ClientState` |
 
 ## Parked for the single live-verification pass
 
