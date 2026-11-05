@@ -265,6 +265,9 @@ Part of [Status](../Status.md); what to build next in this area is in
   default (`Game_CHANCE_SUCCESS_PERCENT` overrides the rate). The Foulborn variant replaces the rightmost explicit.
   Replica Headhunter steals a magic monster's affixes instead, at its 20% per-kill chance, through the same stacks.
   Aegis Aurora's block recovery adds 2% of the armour rating as energy shield through `BlockRecovery`.
+  Doryani's Prototype makes armour apply to lightning damage taken (`base_armour_applies_to_lightning_damage` in
+  `PlayerHitMitigation.ArmourPercent`); its "lightning resistance does not apply" and nearby-enemy resistance rules
+  are not modelled yet.
   Not yet: other uniques' mechanics and the "effects cannot be removed" backstop
   (`UniqueCatalog`, `Program.Mageblood`, `StolenMods`, `Program.UniqueBelts`;
   [13](../docs/protocol/13-items.md) §2e, §8a).

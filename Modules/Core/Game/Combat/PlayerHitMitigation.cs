@@ -7,6 +7,9 @@ static class PlayerHitMitigation
 {
     public const string ArmourAppliesToChaos = "base_armour_applies_to_chaos_damage";
 
+    /// <summary>Doryani's Prototype: armour applies to lightning damage taken (the body armour's own rule).</summary>
+    public const string ArmourAppliesToLightning = "base_armour_applies_to_lightning_damage";
+
     public const string ArmourPercentToElemental = "armour_%_applies_to_fire_cold_lightning_damage",
         ArmourPercentToChaos = "base_armour_%_applies_to_chaos_damage";
 
@@ -18,6 +21,7 @@ static class PlayerHitMitigation
     {
         DamageType.Physical => 100,
         DamageType.Chaos => pools.ArmourAppliesToChaosDamage ? 100 : Math.Clamp(get(ArmourPercentToChaos), 0, 100),
+        DamageType.Lightning when get(ArmourAppliesToLightning) != 0 => 100,
         _ when DamageTypes.IsElemental(type) => Math.Clamp(get(ArmourPercentToElemental), 0, 100),
         _ => 0,
     };
