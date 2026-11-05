@@ -13,6 +13,18 @@ static partial class Game
 
     static readonly ConditionalWeakTable<ClientState, Dictionary<uint, List<MonsterCurseEntry>>> MonsterCurses = new();
 
+    // The active skill's effect id when it is a curse skill.
+    internal static CurseKind CurseSkillKind(string? effect) => effect switch
+    {
+        "vulnerability" => CurseKind.Vulnerability,
+        "temporal_chains" => CurseKind.TemporalChains,
+        "enfeeble" => CurseKind.Enfeeble,
+        "flammability" => CurseKind.Flammability,
+        "frostbite" => CurseKind.Frostbite,
+        "conductivity" => CurseKind.Conductivity,
+        _ => CurseKind.None,
+    };
+
     internal static bool MonsterHexproof(SpawnedMonster m) =>
         m.Mods.Effects["base_immune_to_curses"] != 0 || m.Mods.Effects["curse_immune"] != 0;
 

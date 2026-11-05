@@ -60,6 +60,21 @@ static partial class Game
                     await SendPlayerMana(remote, stream, ciphers, conn, $"0x01b1 player mana {conn.PlayerMana} (disabled skill, cost back)");
                     continue;
                 }
+                // A curse skill's cast puts its curse on the nearby hostile monsters (an area application: the client's
+                // target selection is not read here).
+                if (cast && gem.Name is not null
+                    && CurseSkillKind(SkillsFor(conn).EffectId(gem.Effect)) is var curseKind and not CurseKind.None)
+                {
+                    lock (conn.Monsters)
+                    {
+                        var curseNow = conn.Clock.Elapsed.TotalSeconds;
+                        var curseHere = conn.Walk.Position(curseNow);
+                        foreach (var (monsterId, monster) in conn.Monsters)
+                            if (monster.Hostile && !monster.Dead && monster.Life > 0
+                                && Dist(monster.Walk.Position(curseNow), curseHere) <= 60)
+                                SetMonsterCurse(conn, monsterId, monster, curseKind, 8);
+                    }
+                }
                 // The ordinary ranged attack fires at the ground point; it is neither a melee hit nor a Move action.
                 // Both bows and wands create their native Projectiles.dat object at the weapon's attack contact.
                 string? ordinaryProjectile = OrdinaryRangedAttack.ProjectileId(WeaponProfileFor(conn, activeSet: true));
