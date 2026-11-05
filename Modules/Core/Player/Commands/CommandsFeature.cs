@@ -716,7 +716,7 @@ static class CommandsFeature
                 return;
             }
             int level = numbers.Count > 0 ? numbers[0] : 1, quality = numbers.Count > 1 ? numbers[1] : 0;
-            // Corruption (one level over the cap, quality up to 23%) is not modelled yet: the uncorrupted limits.
+            // /gem creates an uncorrupted gem: level at most MaxLevel and quality at most 20. A Vaal Orb raises it further.
             if (level < 1 || level > gem.MaxLevel) { await conn.Commands!.Reply($"{variant.Name} has levels 1 to {gem.MaxLevel}"); return; }
             if (quality is < 0 or > 20) { await conn.Commands!.Reply("Quality is 0 to 20"); return; }
             var items = ItemsOf(conn);

@@ -1008,13 +1008,35 @@ static partial class Game
             CurrencyEffects.GemcuttersPrism => CurrencyEffects.Gemcutter(target),
             CurrencyEffects.FracturingOrb => CurrencyEffects.Fracture(target, RollsFor(conn), random),
             CurrencyEffects.VaalOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } vaalType
-                ? CurrencyEffects.Vaal(target, vaalType, ItemsFor(conn).Requirements(vaalType), RollsFor(conn), random) : null,
+                ? target.Components.Contains("SkillGem")
+                    ? VaalGem(conn, target, random)
+                    : CurrencyEffects.Vaal(target, vaalType, ItemsFor(conn).Requirements(vaalType), RollsFor(conn), random)
+                : null,
             // The Volatile Vaal Orb: the unique's modifier values are rerolled like a Divine Orb's and the item is
             // corrupted in the same use. Corrupted and mirrored items are refused.
             CurrencyEffects.VolatileVaalOrb => VolatileVaalMax(conn, target),
             _ when isEssence => EssencesFor(conn).Apply(type!.Hash, target, random),
             _ => null,
         };
+    }
+
+    /// <summary>Vaal Orb on a gem: one of the official outcomes, chosen evenly among those that apply — no change, one
+    /// level over the cap (the client reads experience -1 as the top level), quality raised to 23%, or the gem's Vaal
+    /// variant when it has a creatable one. The gem is corrupted either way.</summary>
+    static Item? VaalGem(ClientState conn, Item target, Random random)
+    {
+        if (target.Corrupted || target.Mirrored) return null;
+        var items = ItemsFor(conn);
+        if (items.ByHash(target.TypeHash) is not { } type || items.Gem(type) is not { } gem) return null;
+        int level = gem.Level(target.GemExperience);
+        var vaal = gem.Variants.FirstOrDefault(v => v.Creatable && v.Index != target.GemVariant
+            && v.Name.StartsWith("Vaal ", StringComparison.OrdinalIgnoreCase));
+        var outcomes = new List<Item> { target };
+        if (level <= gem.MaxLevel)
+            outcomes.Add(target with { GemExperience = level == gem.MaxLevel ? -1 : gem.ExperienceFor(level + 1) });
+        if (target.Quality < 23) outcomes.Add(target with { Quality = 23 });
+        if (vaal is { } variant) outcomes.Add(target with { GemVariant = variant.Index });
+        return outcomes[random.Next(outcomes.Count)] with { Corrupted = true };
     }
 
     /// <summary>The Volatile Vaal Orb (無常瓦爾寶珠): every modifier of a changeable unique is set to the top of its roll

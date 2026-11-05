@@ -89,7 +89,9 @@ Nothing yet.
   Item serialization also derives the native variant flag for standalone and socketed gems, preserving level-lock
   and saved flags. Wire regressions cover the flag; transfigured item names still need a native retest;
   `/gem <name> [level] [quality]` (`ItemCatalog.cs`, `SkillCatalog.cs`; [19](../docs/protocol/19-gems.md) §1, §3).
-  Not yet: corruption.
+  Corruption: Vaal Orb on a gem picks evenly among the outcomes that apply — no change, one level over the cap (the
+  client reads experience -1 as 21), quality to 23%, or the creatable Vaal variant — and marks it corrupted
+  (`VaalGem` in `Modules/Core/Game/Item/Items.cs`). Gateway-side; native check pending.
 - **Gem requirements (tested, checked with the real client).** A gem's level requirement is the character level of its
   level (GrantedEffectStatSetsPerLevel `PlayerLevelReq`; Haste 24 at gem level 1 . 70 at 20, the client's tooltips),
   and its attribute requirements follow the client's own formula (`0x14246fc40`: `trunc((3 * level_req + 11) *

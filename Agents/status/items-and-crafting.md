@@ -261,9 +261,16 @@ Part of [Status](../Status.md); what to build next in this area is in
   Headhunter: killing a rare gives each of its rolled affixes as a stack of character stats for 60 s (the same one resets
   its time), with one Headhunter buff showing the count and the longest time, and
   its rolled increased damage against rares (not seen live yet; they end on an area change, where the game keeps them).
-  Not yet: other uniques' mechanics, chancing, the "effects cannot be removed" backstop, the Foulborn rightmost variant,
+  Chancing works: the Orb of Chance accepts normal and rare equipment, keeps a rare item's enchantment, and succeeds by
+  default (`Game_CHANCE_SUCCESS_PERCENT` overrides the rate). The Foulborn variant replaces the rightmost explicit.
+  Not yet: other uniques' mechanics, the "effects cannot be removed" backstop,
   Replica Headhunter and Enkindling (`UniqueCatalog`, `Program.Mageblood`, `StolenMods`, `Program.UniqueBelts`;
   [13](../docs/protocol/13-items.md) §2e, §8a).
+
+- Developer item tools: `/item_copy [mirrored]` duplicates the held item (a plain copy unless "mirrored"); the
+  Volatile Vaal Orb (`CurrencyHellscapeModValues`) sets a changeable unique's modifiers to the top of their range
+  and corrupts it. Uniques whose mods carry `HasNoSockets` (Kaom's Heart, Kaom's Roots) are created without the
+  Sockets component, so the client draws no sockets at all.
 
 - Ruthless uses native mod/flask alternatives, reduced tunable drops and vendor returns, and refuses bench crafting.
   Entering town or a hideout does not refill its pools/flasks; supported vendors refill them instead.
