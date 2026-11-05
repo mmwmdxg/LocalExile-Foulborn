@@ -32,6 +32,13 @@ static class CurrencyEffects
     /// on an already corrupted rare item.</summary>
     public const string TaintedExaltedOrb = "Metadata/Items/Currency/CurrencyHellscapeAddModToRare";
 
+    public const string TaintedMythicOrb = "Metadata/Items/Currency/CurrencyHellscapeUpgradeToUnique";
+
+    /// <summary>Tainted Mythic Orb: the Orb of Chance's normal/rare-to-unique upgrade, only on an already corrupted
+    /// item (the ordinary Chance refuses corrupted items).</summary>
+    public static Item? TaintedMythic(Item item, UniqueCatalog uniques, Func<string, double> weight, Random random) =>
+        item.Corrupted ? uniques.Chance(item, weight, random, allowCorrupted: true) : null;
+
     public const string TaintedChromaticOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollSocketColours";
     public const string TaintedFusingOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollSocketLinks";
     public const string TaintedJewellersOrb = "Metadata/Items/Currency/CurrencyHellscapeRerollSocketNumbers";

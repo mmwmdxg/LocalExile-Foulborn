@@ -378,8 +378,8 @@ Part of [Status](../Status.md); what to build next in this area is in
   those). Tainted Armourer's Scrap and Tainted Blacksmith's Whetstone likewise add quality to an already corrupted
   armour/weapon (the ordinary scrap and whetstone now refuse corrupted items). Gateway-side; native check pending.
   Tainted Chromatic Orb, Tainted Orb of Fusing and Tainted Jeweller's Orb likewise reroll colours, links and socket
-  count on an already corrupted item (the ordinary socket currencies now refuse corrupted items). The Tainted Mythic
-  upgrade remains unmodelled.
+  count on an already corrupted item (the ordinary socket currencies now refuse corrupted items). Tainted Mythic Orb
+  upgrades an already corrupted normal/rare item to a same-base unique through the Chance path.
 - **Foulborn (穢生) items:** Mods component flag bit 9. The client prefixes the unique's name, draws the purple
   header icons and mutated art, and labels `MutatedUnique*` modifiers "Foulborn Unique Modifier". `/item_state
   foulborn` toggles it and the save keeps it; nothing in play creates Foulborn items yet, and the mod-replacement

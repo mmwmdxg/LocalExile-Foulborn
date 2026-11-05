@@ -975,6 +975,7 @@ static partial class Game
             CurrencyEffects.FoulbornAugmentation => CurrencyEffects.Augmentation(target, RollsFor(conn), random),
             CurrencyEffects.FoulbornRegal => CurrencyEffects.Regal(target, RollsFor(conn), random),
             CurrencyEffects.FoulbornExalted => CurrencyEffects.Exalted(target, RollsFor(conn), random),
+            CurrencyEffects.TaintedMythicOrb => CurrencyEffects.TaintedMythic(target, UniquesFor(conn), DropsFor(conn).UniqueWeight, random),
             CurrencyEffects.TaintedChromaticOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } taintedChromaticType
                 ? CurrencyEffects.TaintedChromatic(target, ItemsFor(conn).Requirements(taintedChromaticType), random) : null,
             CurrencyEffects.TaintedFusingOrb => ItemsFor(conn).ByHash(target.TypeHash) is { } taintedFusingType

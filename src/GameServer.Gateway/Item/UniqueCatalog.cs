@@ -133,9 +133,9 @@ sealed class UniqueCatalog(ItemCatalog items, string folder = "data")
     /// corrupted and Replica ones). The chance is that base's share of all unique drop weight
     /// (<c>ItemDrops.UniqueWeight</c>), and the unique is then picked among the base's uniques by weight; a failed roll
     /// returns the item unchanged, because the orb is still spent. Bases without uniques are refused.</summary>
-    public Item? Chance(Item item, Func<string, double> weight, Random random)
+    public Item? Chance(Item item, Func<string, double> weight, Random random, bool allowCorrupted = false)
     {
-        if (item.Rarity is not (ItemRarity.Normal or ItemRarity.Rare) || item.Corrupted || item.Mirrored ||
+        if (item.Rarity is not (ItemRarity.Normal or ItemRarity.Rare) || (item.Corrupted && !allowCorrupted) || item.Mirrored ||
             items.ByHash(item.TypeHash) is not { } type || !ItemDrops.EquipmentClasses.Contains(type.Class)) return null;
         var candidates = All.Where(d => !d.Corrupted && !d.Name.StartsWith("Replica ", StringComparison.Ordinal)
             && weight(d.Name) is > 0 && items.Find(d.BaseTypeId)?.Hash == item.TypeHash).ToList();
