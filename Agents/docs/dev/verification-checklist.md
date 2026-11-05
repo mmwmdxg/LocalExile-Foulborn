@@ -57,6 +57,7 @@ list. Each row: what to do, what should happen, and what to send me if it does n
 | 3.13 | Mind over Matter only while at max power charges | Mana share only with full power charges |
 | 3.14 | Vaal Pact keystone, leech life | Life refills instantly instead of over time |
 | 3.15 | Vaal Pact only while at max endurance charges | Instant leech only with full endurance charges |
+| 3.16 | Rampage grant with max endurance charges | Rampage counter stays up while the charges are full |
 
 ## Reporting
 

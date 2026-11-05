@@ -71,6 +71,13 @@ sealed class RampageState
     /// Every crossed tier is returned once in ascending order during this streak. Expiry/Clear permits new crossings.
     /// A zero or out-of-range count is refused without advancing time or refreshing a streak.
     /// </summary>
+    /// <summary>Keeps an active streak alive without adding a stack (a granted Rampage, not a kill).</summary>
+    public void Refresh(double now)
+    {
+        if (stacks <= 0 || !AcceptTime(now)) return;
+        expiresAt = now + DurationSeconds;
+    }
+
     public Change GainQualified(double now, int count = 1)
     {
         var before = Current;

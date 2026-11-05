@@ -9,6 +9,12 @@ sealed class RampageSession
     readonly Queue<int> pendingTiers = new();
     public IReadOnlyList<int> PendingTiers => pendingTiers.ToArray();
     public RampageState.Value Current => state.Current;
+
+    /// <summary>Keep an active streak alive without a stack (a granted Rampage, not a kill or hit).</summary>
+    public void Keep(double now) => state.Refresh(now);
+
+    /// <summary>Start a streak with one stack when it is not active (a granted Rampage).</summary>
+    public bool Grant(double now) => state.GainQualified(now, 1).Accepted;
     public RampageState.Carried Carry(double now) { pendingTiers.Clear(); return state.Carry(now); }
     public void Restore(RampageState.Carried carried, double now) { pendingTiers.Clear(); state.Restore(carried, now); }
     public int[] TakeTiers()

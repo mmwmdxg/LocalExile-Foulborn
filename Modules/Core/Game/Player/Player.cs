@@ -469,6 +469,21 @@ static partial class Game
             await SendTotems(remote, stream, ciphers, conn);
             await SendSpiritChieftain(remote, stream, ciphers, conn);
             await SendOnslaught(remote, stream, ciphers, conn);
+            // gain_rampage_while_at_maximum_endurance_charges: hold the streak while the endurance charges are full.
+            if (Stats.Key("gain_rampage_while_at_maximum_endurance_charges") is uint rampageKey
+                && CharacterPlayerStats(conn).GetValueOrDefault(rampageKey) != 0)
+            {
+                lock (conn.Monsters)
+                {
+                    var session = ChargesOf(conn);
+                    var limits = session.Limits(ChargeType.Endurance);
+                    if (limits.Maximum > 0 && session.Effective(ChargeType.Endurance) >= limits.Maximum)
+                    {
+                        if (conn.Rampage.Current.Active) conn.Rampage.Keep(tickNow);
+                        else conn.Rampage.Grant(tickNow);
+                    }
+                }
+            }
             await SendRecentEnemyHits(remote, stream, ciphers, conn);
             if (conn.FlaskGrounds.StartTickerIfConfigured()) _ = RunFlaskGrounds(remote, stream, ciphers, conn);
             await SendAttackerSlows(remote, stream, ciphers, conn);

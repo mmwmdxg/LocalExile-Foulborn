@@ -39,6 +39,7 @@ through the desktop browser (web_fetch is blocked by DNS policy here).
 | Skills | `gain_onslaught_on_hit_chance_while_at_maximum_frenzy_charges_%` rolls Onslaught (4 s) on a hit while frenzy charges are full. | `Charges.ChargesOnHit` |
 | Skills | Mind over Matter: `damage_taken_goes_to_mana_%` (keystone, or the at-maximum-power-charges grant) pays part of the life damage from mana; short mana falls back to life. | `Antiquarian.DamagePlayerHit` |
 | Skills | Vaal Pact makes life leech instant; `gain_vaal_pact_while_at_maximum_endurance_charges` folds into the keystone while the endurance charges are full. | `LeechSession.Configure`, `Leech.VaalPactGet` |
+| Skills | `gain_rampage_while_at_maximum_endurance_charges` starts and keeps a Rampage streak while the endurance charges are full. | `RampageSession.Keep/Grant`, `Player.RunPlayerTick` |
 | Skills | Augury of Penitence (Inquisitor and Scion) now applies its increased elemental damage taken as a passive enemy aura, using the existing consumer. | `PassiveBuffAuras.EnemyAuraTemplates` |
 | Currency | Tainted Chaos and Tainted Exalted Orbs reroll/add affixes on an already corrupted rare item (the ordinary orbs refuse corrupted targets). | `CurrencyEffects.TaintedChaos/TaintedExalted`, `ItemRolls.TryModifiable` |
 | Currency | Tainted Armourer's Scrap and Tainted Whetstone add quality to already corrupted armour/weapons; the ordinary ones now refuse corrupted items. | `CurrencyEffects.TaintedScrap/TaintedWhetstoneItem` |
